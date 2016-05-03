@@ -12,10 +12,21 @@ import CoreData
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
+    
+    
+    let APP_ID = "66D4C758-07DB-D75A-FFB5-050DBAFB7F00"
+    let SECRET_KEY = "B8736618-1651-9B18-FF2B-28B2F26D2600"
+    let VERSION_NUM = "v1"
+    
+    var backendless = Backendless.sharedInstance()
+
     var window: UIWindow?
 
-
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
+        backendless.initApp(APP_ID, secret:SECRET_KEY, version:VERSION_NUM)
+        // if you plan to use Backendless Media Service, uncomment the following line (iOS ONLY!)
+        // backendless.mediaService = MediaService()
+        
         // Override point for customization after application launch.
         return true
     }
