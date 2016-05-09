@@ -187,6 +187,13 @@ class MisSitiosTableViewController: UITableViewController {
         
     }
     
+    @IBAction func cancelToSitioViewController(segue:UIStoryboardSegue) {
+        
+    }
+    @IBAction func saveDetalleSitio(segue:UIStoryboardSegue) {
+        
+    }
+    
  
     
     
