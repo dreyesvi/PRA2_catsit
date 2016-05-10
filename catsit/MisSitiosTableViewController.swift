@@ -137,7 +137,7 @@ class MisSitiosTableViewController: UITableViewController {
         return cell
     }
     
-    func obtener1ImagenSitio (idSitio: Int, idUsuario: String) -> UIImageView{
+   /* func obtener1ImagenSitio (idSitio: Int, idUsuario: String) -> UIImageView{
         
         
         
@@ -185,7 +185,7 @@ class MisSitiosTableViewController: UITableViewController {
         
         return imagenView
         
-    }
+    }*/
     
     @IBAction func cancelToSitioViewController(segue:UIStoryboardSegue) {
         

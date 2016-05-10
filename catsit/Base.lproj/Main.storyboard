@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10116" systemVersion="15E65" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10117" systemVersion="15E65" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="BYZ-38-t0r">
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
@@ -344,7 +344,10 @@
                                                 <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="cVr-w0-dfR">
                                                     <rect key="frame" x="8" y="5" width="584" height="30"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                                    <textInputTraits key="textInputTraits"/>
+                                                    <textInputTraits key="textInputTraits" returnKeyType="next"/>
+                                                    <connections>
+                                                        <outlet property="delegate" destination="D8H-8b-EyG" id="4V5-TU-aaN"/>
+                                                    </connections>
                                                 </textField>
                                             </subviews>
                                             <constraints>
@@ -372,7 +375,10 @@
                                                     <rect key="frame" x="8" y="8" width="584" height="191"/>
                                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                                    <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                                                    <textInputTraits key="textInputTraits" autocapitalizationType="sentences" returnKeyType="done"/>
+                                                    <connections>
+                                                        <outlet property="delegate" destination="D8H-8b-EyG" id="y18-oX-9nn"/>
+                                                    </connections>
                                                 </textView>
                                             </subviews>
                                             <constraints>
@@ -387,10 +393,10 @@
                                     </tableViewCell>
                                 </cells>
                             </tableViewSection>
-                            <tableViewSection headerTitle="Fotos" id="PNq-3V-dJC">
+                            <tableViewSection id="PNq-3V-dJC">
                                 <cells>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" id="mAj-N0-Vla">
-                                        <rect key="frame" x="0.0" y="460" width="600" height="44"/>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" rowHeight="44" id="mAj-N0-Vla">
+                                        <rect key="frame" x="0.0" y="445" width="600" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="mAj-N0-Vla" id="Pbj-74-Jhu">
                                             <rect key="frame" x="0.0" y="0.0" width="600" height="43"/>
@@ -411,20 +417,17 @@
                                                 <constraint firstAttribute="leadingMargin" secondItem="C6L-aW-XUM" secondAttribute="leading" id="yYD-WL-uOd"/>
                                             </constraints>
                                         </tableViewCellContentView>
+                                        <color key="backgroundColor" cocoaTouchSystemColor="tableCellGroupedBackgroundColor"/>
                                     </tableViewCell>
-                                </cells>
-                            </tableViewSection>
-                            <tableViewSection headerTitle="Ubicación Geográfica" id="NXW-U2-xLo">
-                                <cells>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" id="jcQ-Pi-zMP">
-                                        <rect key="frame" x="0.0" y="555" width="600" height="44"/>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" id="ZCx-n9-sZI">
+                                        <rect key="frame" x="0.0" y="489" width="600" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
-                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="jcQ-Pi-zMP" id="4Nb-gk-CkZ">
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="ZCx-n9-sZI" id="ZfJ-Xw-GtH">
                                             <rect key="frame" x="0.0" y="0.0" width="600" height="43"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="CmI-uu-UNo">
-                                                    <rect key="frame" x="8" y="7" width="584" height="30"/>
+                                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="2iU-Ca-TrJ">
+                                                    <rect key="frame" x="8" y="5" width="584" height="30"/>
                                                     <color key="backgroundColor" red="0.32461923609999999" green="0.96745729660000002" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                                     <fontDescription key="fontDescription" name="HelveticaNeue-Bold" family="Helvetica Neue" pointSize="15"/>
                                                     <color key="tintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -432,15 +435,12 @@
                                                 </button>
                                             </subviews>
                                             <constraints>
-                                                <constraint firstAttribute="bottomMargin" secondItem="CmI-uu-UNo" secondAttribute="bottom" constant="-2" id="DcE-ih-0eD"/>
-                                                <constraint firstItem="CmI-uu-UNo" firstAttribute="top" secondItem="4Nb-gk-CkZ" secondAttribute="topMargin" constant="-1" id="ZiQ-bg-cRf"/>
-                                                <constraint firstAttribute="leadingMargin" secondItem="CmI-uu-UNo" secondAttribute="leading" id="tib-Mu-mhc"/>
-                                                <constraint firstAttribute="trailingMargin" secondItem="CmI-uu-UNo" secondAttribute="trailing" id="yJU-gl-gyq"/>
+                                                <constraint firstAttribute="trailingMargin" secondItem="2iU-Ca-TrJ" secondAttribute="trailing" id="0QU-aH-Vvx"/>
+                                                <constraint firstItem="2iU-Ca-TrJ" firstAttribute="top" secondItem="ZfJ-Xw-GtH" secondAttribute="topMargin" constant="-3" id="8Tn-cp-qpc"/>
+                                                <constraint firstAttribute="bottomMargin" secondItem="2iU-Ca-TrJ" secondAttribute="bottom" id="Egn-gR-5Uf"/>
+                                                <constraint firstAttribute="leadingMargin" secondItem="2iU-Ca-TrJ" secondAttribute="leading" id="rKD-ut-dOn"/>
                                             </constraints>
                                         </tableViewCellContentView>
-                                        <constraints>
-                                            <constraint firstItem="CmI-uu-UNo" firstAttribute="leading" secondItem="jcQ-Pi-zMP" secondAttribute="leading" constant="8" id="VI4-FE-C5Y"/>
-                                        </constraints>
                                     </tableViewCell>
                                 </cells>
                             </tableViewSection>
@@ -458,7 +458,7 @@
                         </barButtonItem>
                         <barButtonItem key="rightBarButtonItem" systemItem="done" id="4IT-vy-s1Q">
                             <connections>
-                                <segue destination="ItZ-f9-Pdc" kind="unwind" unwindAction="saveDetalleSitio:" id="rd8-tG-3fe"/>
+                                <segue destination="ItZ-f9-Pdc" kind="unwind" identifier="saveDetalleSitio" unwindAction="saveDetalleSitio:" id="rd8-tG-3fe"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
@@ -466,7 +466,7 @@
                         <outlet property="descripcionTextView" destination="PzX-JX-lOh" id="nLo-Z6-aH3"/>
                         <outlet property="gestionarFotos" destination="C6L-aW-XUM" id="IKI-Yp-v5T"/>
                         <outlet property="nombreTextField" destination="cVr-w0-dfR" id="Xx2-Pt-qbx"/>
-                        <outlet property="obtenerUbicacion" destination="CmI-uu-UNo" id="mKL-YG-efd"/>
+                        <outlet property="obtenerUbicacion" destination="2iU-Ca-TrJ" id="MjM-eO-iym"/>
                     </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="JVr-ia-txO" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -1064,6 +1064,6 @@
         <image name="missitios" width="25" height="25"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="4Sc-mg-dcR"/>
+        <segue reference="vNr-6I-d8E"/>
     </inferredMetricsTieBreakers>
 </document>

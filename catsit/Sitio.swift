@@ -10,18 +10,21 @@ import Foundation
 
 class Sitio : NSObject {
     
-    var objectId : String?
-    var created : NSDate?
-    var updated : NSDate?
-    var idSitio: Int=0
-    var nombre: String?
+    var objectId: String?
     var descripcion: String?
     var direccion: String?
-    var provincia: String?
+    var idSitio: Int=0
+    //var latitud: GeoPoint?
+    //var longitud: GeoPoint?
+    var nombre: String?
     var pais: String?
-    var latitud: GeoPoint?
-    var longitud: GeoPoint?
+    var provincia: String?
     var usuario_idUsuario: String?
+ 
    
+    override init(){
+        
+    }
+    
     
 }
