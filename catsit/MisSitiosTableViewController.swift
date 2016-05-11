@@ -98,7 +98,7 @@ class MisSitiosTableViewController: UITableViewController {
         
         // Prepara una consulta a la tabla sitio filtrando solo los sitios del usuario
         let query = BackendlessDataQuery()
-        let whereClause = "idUsuario = '\(sitio.usuario_idUsuario!)' and idSitio=\(sitio.idSitio)"
+        let whereClause = "idUsuario = '\(sitio.usuario_idUsuario!)' and idSitio='\(sitio.nombre!)'"
         query.whereClause = whereClause
         
         Types.tryblock({ () -> Void in
@@ -125,72 +125,32 @@ class MisSitiosTableViewController: UITableViewController {
                         print("Server reported an error: \(exception)")
                         print (whereClause)
         })
-
-        
-        
-        
-        
-        
-        
-        
         
         return cell
     }
     
-   /* func obtener1ImagenSitio (idSitio: Int, idUsuario: String) -> UIImageView{
-        
-        
-        
-        
-        let imagenView = UIImageView(frame: CGRectMake(0, 0, 400, 400))
-        
-        let backendless = Backendless.sharedInstance()
-        
-        
-        // Prepara una consulta a la tabla sitio filtrando solo los sitios del usuario
-        let query = BackendlessDataQuery()
-        let whereClause = "idUsuario = '\(idUsuario)' and idSitio=\(idSitio)"
-        query.whereClause = whereClause
-        
-        Types.tryblock({ () -> Void in
-            
-            // realiza la consulta a la bb.dd y obtiene los resultados
-            let imagenes = backendless.persistenceService.of(Imagen.ofClass()).find(query)
-            let currentPage = imagenes.getCurrentPage()
-            
-            // Obtiene la primera imagen
-            for img in currentPage as! [Imagen] {
-                
-                if let url  = NSURL(string: img.imagen!),
-                    data = NSData(contentsOfURL: url)
-                {
-                    imagenView.image = UIImage(data: data)
-                }
-                
-                    
-                
-                
-                break
-                
-                
-            }
-            },
-                       catchblock: { (exception) -> Void in
-                        print("Server reported an error: \(exception)")
-                        print (whereClause)
-        })
 
-        
-        
-        
-        return imagenView
-        
-    }*/
     
     @IBAction func cancelToSitioViewController(segue:UIStoryboardSegue) {
         
     }
     @IBAction func saveDetalleSitio(segue:UIStoryboardSegue) {
+        
+        
+        if let DetalleSitioViewController = segue.sourceViewController as? DetalleSitioViewController {
+            
+            if let sitio = DetalleSitioViewController.sitio {
+                //Añade el nuevo sitio al array de sitios
+                sitiosArray.append(sitio)
+                
+                // Actualiza el tableView con el nuevo sitio
+                let indexPath = NSIndexPath(forRow: sitiosArray.count-1, inSection: 0)
+                tableView.insertRowsAtIndexPaths([indexPath], withRowAnimation: .Automatic)
+                
+            }
+            
+        }
+        
         
     }
     

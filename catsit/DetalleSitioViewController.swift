@@ -83,7 +83,7 @@ class DetalleSitioViewController: UITableViewController, UITextFieldDelegate, UI
             sitio = Sitio()
             sitio?.nombre=nombreTextField.text
             sitio?.descripcion=descripcionTextView.text
-            sitio?.idSitio=idSitio
+            //sitio?.idSitio=idSitio
             sitio?.usuario_idUsuario=idUsuario
             
             let dataStore = backendless.data.of(Sitio.ofClass());

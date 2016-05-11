@@ -16,7 +16,7 @@ class Imagen : NSObject {
     
     var idImagen: Int?
     var imagen: String?
-    var idSitio: Int?
+    var idSitio: String?
     var idUsuario: String?
     
 }

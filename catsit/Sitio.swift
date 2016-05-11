@@ -13,7 +13,7 @@ class Sitio : NSObject {
     var objectId: String?
     var descripcion: String?
     var direccion: String?
-    var idSitio: Int=0
+    //var idSitio: Int=0
     //var latitud: GeoPoint?
     //var longitud: GeoPoint?
     var nombre: String?

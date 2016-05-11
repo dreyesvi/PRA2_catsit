@@ -21,6 +21,7 @@
 		6324A8FC1CB1B46F00FD652E /* libspeex.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6324A8EC1CB1B46F00FD652E /* libspeex.a */; };
 		6324A8FD1CB1B47000FD652E /* libx264.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6324A8F21CB1B46F00FD652E /* libx264.a */; };
 		6344F5B41CE107730047EC4C /* DetalleSitioViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6344F5B31CE107730047EC4C /* DetalleSitioViewController.swift */; };
+		639E26F31CE3A78C004B4EC7 /* HacerFotoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 639E26F21CE3A78C004B4EC7 /* HacerFotoViewController.swift */; };
 		63BD6ED01CB576BC00E316B6 /* RegistroTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63BD6ECF1CB576BC00E316B6 /* RegistroTableViewController.swift */; };
 		63EBE1F11CAD8FAA00D51643 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63EBE1F01CAD8FAA00D51643 /* AppDelegate.swift */; };
 		63EBE1F31CAD8FAA00D51643 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63EBE1F21CAD8FAA00D51643 /* LoginViewController.swift */; };
@@ -166,6 +167,7 @@
 		6324A8F01CB1B46F00FD652E /* x264_config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = x264_config.h; sourceTree = "<group>"; };
 		6324A8F21CB1B46F00FD652E /* libx264.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libx264.a; sourceTree = "<group>"; };
 		6344F5B31CE107730047EC4C /* DetalleSitioViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DetalleSitioViewController.swift; sourceTree = "<group>"; };
+		639E26F21CE3A78C004B4EC7 /* HacerFotoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HacerFotoViewController.swift; sourceTree = "<group>"; };
 		63BD6ECF1CB576BC00E316B6 /* RegistroTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RegistroTableViewController.swift; sourceTree = "<group>"; };
 		63EBE1ED1CAD8FAA00D51643 /* catsit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = catsit.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		63EBE1F01CAD8FAA00D51643 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -470,6 +472,7 @@
 				63EC3AE51CE07DF1000795E8 /* SitioCell.swift */,
 				63090BF21CE0946A0050DA7D /* Imagen.swift */,
 				6344F5B31CE107730047EC4C /* DetalleSitioViewController.swift */,
+				639E26F21CE3A78C004B4EC7 /* HacerFotoViewController.swift */,
 			);
 			path = catsit;
 			sourceTree = "<group>";
@@ -628,6 +631,7 @@
 				6324A8201CB193B400FD652E /* InformacionViewController.swift in Sources */,
 				63EBE1F31CAD8FAA00D51643 /* LoginViewController.swift in Sources */,
 				6324A8181CB18BEB00FD652E /* CondicionesViewController.swift in Sources */,
+				639E26F31CE3A78C004B4EC7 /* HacerFotoViewController.swift in Sources */,
 				63EBE1F91CAD8FAA00D51643 /* catsit.xcdatamodeld in Sources */,
 				6324A81C1CB1936100FD652E /* MapaViewController.swift in Sources */,
 				63EBE1F11CAD8FAA00D51643 /* AppDelegate.swift in Sources */,

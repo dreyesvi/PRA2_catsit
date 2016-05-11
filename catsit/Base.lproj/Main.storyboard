@@ -408,6 +408,9 @@
                                                     <fontDescription key="fontDescription" name="HelveticaNeue-Bold" family="Helvetica Neue" pointSize="15"/>
                                                     <color key="tintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                     <state key="normal" title="Añadir Fotos"/>
+                                                    <connections>
+                                                        <segue destination="GaH-4I-xoL" kind="show" id="fSG-Qv-89B"/>
+                                                    </connections>
                                                 </button>
                                             </subviews>
                                             <constraints>
@@ -473,6 +476,100 @@
                 <exit id="ItZ-f9-Pdc" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
             <point key="canvasLocation" x="3404" y="-1181"/>
+        </scene>
+        <!--Hacer Foto View Controller-->
+        <scene sceneID="LrS-1s-Hhg">
+            <objects>
+                <viewController id="GaH-4I-xoL" customClass="HacerFotoViewController" customModule="catsit" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="zVw-cA-wmt"/>
+                        <viewControllerLayoutGuide type="bottom" id="gOG-Tf-Ljm"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="1Jz-HB-gw4">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="249" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" hasAttributedTitle="YES" translatesAutoresizingMaskIntoConstraints="NO" id="CwV-0C-xB7">
+                                <rect key="frame" x="36" y="441" width="531" height="33"/>
+                                <color key="backgroundColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                <state key="normal">
+                                    <attributedString key="attributedTitle">
+                                        <fragment content="HACER FOTO">
+                                            <attributes>
+                                                <color key="NSColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                                <font key="NSFont" size="18" name="HelveticaNeue-Bold"/>
+                                            </attributes>
+                                        </fragment>
+                                    </attributedString>
+                                </state>
+                                <connections>
+                                    <action selector="hacerFoto:" destination="GaH-4I-xoL" eventType="touchUpInside" id="7eg-7D-fIE"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" hasAttributedTitle="YES" translatesAutoresizingMaskIntoConstraints="NO" id="aGh-0X-hJp">
+                                <rect key="frame" x="36" y="492" width="531" height="33"/>
+                                <color key="backgroundColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="200" id="b9p-9o-5jT"/>
+                                </constraints>
+                                <state key="normal">
+                                    <attributedString key="attributedTitle">
+                                        <fragment content="SELECCIONAR FOTO">
+                                            <attributes>
+                                                <color key="NSColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                                <font key="NSFont" size="18" name="HelveticaNeue-Bold"/>
+                                                <paragraphStyle key="NSParagraphStyle" alignment="natural" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
+                                            </attributes>
+                                        </fragment>
+                                    </attributedString>
+                                </state>
+                                <variation key="default">
+                                    <mask key="constraints">
+                                        <exclude reference="b9p-9o-5jT"/>
+                                    </mask>
+                                </variation>
+                                <connections>
+                                    <action selector="seleccionarFoto:" destination="GaH-4I-xoL" eventType="touchUpInside" id="xh0-vQ-D1K"/>
+                                </connections>
+                            </button>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="gVE-5X-s2Q">
+                                <rect key="frame" x="36" y="64" width="531" height="271"/>
+                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="271" id="2Jf-fX-pum"/>
+                                </constraints>
+                            </imageView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstAttribute="leadingMargin" secondItem="aGh-0X-hJp" secondAttribute="leading" constant="-16" id="DHv-Hd-qVq"/>
+                            <constraint firstItem="aGh-0X-hJp" firstAttribute="width" secondItem="1Jz-HB-gw4" secondAttribute="width" constant="-69" id="DMf-oJ-7XQ"/>
+                            <constraint firstItem="gVE-5X-s2Q" firstAttribute="top" secondItem="zVw-cA-wmt" secondAttribute="bottom" id="Fpw-VE-OlO"/>
+                            <constraint firstItem="aGh-0X-hJp" firstAttribute="top" secondItem="CwV-0C-xB7" secondAttribute="bottom" constant="18" id="LUD-Dw-Ab0"/>
+                            <constraint firstItem="gVE-5X-s2Q" firstAttribute="leading" secondItem="1Jz-HB-gw4" secondAttribute="leading" constant="36" id="QvM-Uj-HCw"/>
+                            <constraint firstAttribute="leadingMargin" secondItem="CwV-0C-xB7" secondAttribute="leading" constant="-16" id="RYo-vb-9jP"/>
+                            <constraint firstItem="CwV-0C-xB7" firstAttribute="top" secondItem="gVE-5X-s2Q" secondAttribute="bottom" constant="106" id="bbP-Ef-fAO"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="aGh-0X-hJp" secondAttribute="trailing" constant="360" id="buL-Nh-74G"/>
+                            <constraint firstAttribute="trailing" secondItem="gVE-5X-s2Q" secondAttribute="trailing" constant="33" id="m6h-Ie-sz5"/>
+                            <constraint firstItem="CwV-0C-xB7" firstAttribute="width" secondItem="1Jz-HB-gw4" secondAttribute="width" constant="-69" id="pfT-6P-hfE"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="CwV-0C-xB7" secondAttribute="trailing" constant="360" id="tnz-f1-3dP"/>
+                        </constraints>
+                        <variation key="default">
+                            <mask key="constraints">
+                                <exclude reference="tnz-f1-3dP"/>
+                                <exclude reference="buL-Nh-74G"/>
+                            </mask>
+                        </variation>
+                    </view>
+                    <toolbarItems/>
+                    <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
+                    <connections>
+                        <outlet property="imagenFoto" destination="gVE-5X-s2Q" id="Bwo-EL-vdT"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="6oq-NL-tUp" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="4208" y="-1181"/>
         </scene>
         <!--Tab Bar Controller-->
         <scene sceneID="eOS-cq-Zq1">
