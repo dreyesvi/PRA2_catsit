@@ -477,7 +477,7 @@
             </objects>
             <point key="canvasLocation" x="3404" y="-1181"/>
         </scene>
-        <!--Hacer Foto View Controller-->
+        <!--Fotos-->
         <scene sceneID="LrS-1s-Hhg">
             <objects>
                 <viewController id="GaH-4I-xoL" customClass="HacerFotoViewController" customModule="catsit" customModuleProvider="target" sceneMemberID="viewController">
@@ -562,6 +562,9 @@
                         </variation>
                     </view>
                     <toolbarItems/>
+                    <navigationItem key="navigationItem" title="Fotos" id="gly-c4-KuS">
+                        <barButtonItem key="rightBarButtonItem" systemItem="save" id="zgf-Wu-5UR"/>
+                    </navigationItem>
                     <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
                     <connections>
                         <outlet property="imagenFoto" destination="gVE-5X-s2Q" id="Bwo-EL-vdT"/>
