@@ -89,9 +89,17 @@ class MisSitiosTableViewController: UITableViewController {
         
         let sitio = sitiosArray[indexPath.row] as Sitio
         
+        
+        // obtiene una versión recortada de la descripción max. 60 caracteres
+        let longdescripcion = sitio.descripcion?.characters.count
+        if (longdescripcion > 60) {
+            let descrecortada = sitio.descripcion![sitio.descripcion!.startIndex...sitio.descripcion!.startIndex.advancedBy(60)]
+            sitio.descripcion=descrecortada
+           print ("descripcion recortada: \(descrecortada)")
+        }
+       
         cell.sitio = sitio
         
-        //cell.imagen = obtener1ImagenSitio( sitio.idSitio , idUsuario: (sitio.usuario_idUsuario)!)
         
         let backendless = Backendless.sharedInstance()
         
@@ -106,6 +114,8 @@ class MisSitiosTableViewController: UITableViewController {
             // realiza la consulta a la bb.dd y obtiene los resultados
             let imagenes = backendless.persistenceService.of(Imagen.ofClass()).find(query)
             let currentPage = imagenes.getCurrentPage()
+            
+            
             
             // Obtiene la primera imagen
             for img in currentPage as! [Imagen] {

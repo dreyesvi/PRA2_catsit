@@ -74,7 +74,7 @@ class DetalleSitioViewController: UITableViewController, UITextFieldDelegate, UI
             
             let user = backendless.userService.currentUser
             
-            let idSitio = Int(rand())
+            //let idSitio = Int(rand())
             
             // Obtiene el valor del campo idusuario del usuario actual en un string
             let idUsuario = user.getProperty("idusuario") as! String
@@ -83,7 +83,7 @@ class DetalleSitioViewController: UITableViewController, UITextFieldDelegate, UI
             sitio = Sitio()
             sitio?.nombre=nombreTextField.text
             sitio?.descripcion=descripcionTextView.text
-            //sitio?.idSitio=idSitio
+            
             sitio?.usuario_idUsuario=idUsuario
             
             let dataStore = backendless.data.of(Sitio.ofClass());
@@ -91,17 +91,99 @@ class DetalleSitioViewController: UITableViewController, UITextFieldDelegate, UI
             
                     let result = dataStore.save(self.sitio) as? Sitio
                     print ("id objecto: \(result!.objectId)")
-                    print("Sitio guardado con id: \(idSitio)")
+                    print("Sitio guardado con id: \(self.nombreTextField.text!)")
                 },
                            catchblock: { (exception) -> Void in
                             print("Server reported an error: \(exception)")
-                            print("id sitio: \(idSitio)")
+                            print("id sitio: \(self.nombreTextField.text!)")
                             print("id usuario: \(idUsuario)")
                             
             })
-
             
         }
+        
+        
+        // Pulsa el botón cancel, se cancela el alta del sitio por lo que se borran las fotos y
+        // localizaciones relacionadas del sitio
+        
+        if segue.identifier == "cancelDetalleSitio" {
+            
+            let backendless = Backendless.sharedInstance()
+            
+            let user = backendless.userService.currentUser
+            
+            //let idSitio = Int(rand())
+            
+            var error: Fault?
+            
+            // Path donde se guardan las fotos en backendless
+            let path = "FotosSitios/"
+            
+            // Obtiene el valor del campo idusuario del usuario actual en un string
+            let idUsuario = user.getProperty("idusuario") as! String
+            
+            // Prepara una consulta a la tabla imagen filtrando solo las fotos del nuevo sitio del usuario
+            let query = BackendlessDataQuery()
+            let whereClause = "idUsuario = '\(idUsuario)' and idSitio='\(self.nombreTextField.text!)'"
+            query.whereClause = whereClause
+            
+            let dataStore = backendless.data.of(Imagen.ofClass());
+
+            Types.tryblock({ () -> Void in
+                
+                // realiza la consulta a la bb.dd y obtiene los resultados
+                let imagenes = backendless.persistenceService.of(Imagen.ofClass()).find(query)
+                let currentPage = imagenes.getCurrentPage()
+                
+                // recorre las imágenes y borra una a una
+                for img in currentPage as! [Imagen] {
+                    
+                    // Borrado del fichero de imagen
+                    
+                    var nomfichero = String(img.idImagen) + ".jpg"
+                    
+                    nomfichero = path + nomfichero
+                    
+                    let result = backendless.fileService.remove(nomfichero)
+                    print("Filchero borrado: \(nomfichero) result= \(result)")
+                    
+                    // Borrado de la imagen de la bb.dd.
+                    let resultbbdd = dataStore.remove(img, fault: &error)
+                    if error == nil {
+                        print("Imagen borrada bb.dd: \(img.idImagen) codigo: \(resultbbdd)")
+                    }
+                    else {
+                        print("Server reported an error: \(error)")
+                    }                   
+                    
+                }
+            
+                
+                },
+                           
+                           catchblock: { (exception) -> Void in
+                            print("Server reported an error: \(exception as! Fault)")
+                }
+            )
+            
+            
+        }
+        
+
+     if segue.identifier == "segueFotos" {
+
+         // pasa como parámetro el identificador del nuevo sitio a la pantalla de fotos 
+         let vcDestino = segue.destinationViewController as! HacerFotoViewController
+        
+            let sitio = Sitio()
+        
+            sitio.nombre = nombreTextField.text
+        
+            vcDestino.sitio = sitio
+            }
+            
+       
+        
     }
     
 

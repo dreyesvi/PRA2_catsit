@@ -330,7 +330,7 @@
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="static" style="grouped" separatorStyle="default" rowHeight="44" sectionHeaderHeight="18" sectionFooterHeight="18" id="eXB-Lr-RLW">
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
+                        <color key="backgroundColor" red="0.93725490199999995" green="0.93725490199999995" blue="0.95686274510000002" alpha="1" colorSpace="calibratedRGB"/>
                         <sections>
                             <tableViewSection headerTitle="Nombre" id="8Ok-LE-pWH">
                                 <cells>
@@ -409,7 +409,7 @@
                                                     <color key="tintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                     <state key="normal" title="Añadir Fotos"/>
                                                     <connections>
-                                                        <segue destination="GaH-4I-xoL" kind="show" id="fSG-Qv-89B"/>
+                                                        <segue destination="GaH-4I-xoL" kind="show" identifier="segueFotos" id="fSG-Qv-89B"/>
                                                     </connections>
                                                 </button>
                                             </subviews>
@@ -420,7 +420,7 @@
                                                 <constraint firstAttribute="leadingMargin" secondItem="C6L-aW-XUM" secondAttribute="leading" id="yYD-WL-uOd"/>
                                             </constraints>
                                         </tableViewCellContentView>
-                                        <color key="backgroundColor" cocoaTouchSystemColor="tableCellGroupedBackgroundColor"/>
+                                        <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                     </tableViewCell>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" id="ZCx-n9-sZI">
                                         <rect key="frame" x="0.0" y="489" width="600" height="44"/>
@@ -456,7 +456,7 @@
                     <navigationItem key="navigationItem" title="Nuevo Sitio" id="jUn-rE-A2I">
                         <barButtonItem key="leftBarButtonItem" systemItem="cancel" id="c4m-gI-QAF">
                             <connections>
-                                <segue destination="ItZ-f9-Pdc" kind="unwind" unwindAction="cancelToSitioViewController:" id="Xtx-JW-QIf"/>
+                                <segue destination="ItZ-f9-Pdc" kind="unwind" identifier="cancelDetalleSitio" unwindAction="cancelToSitioViewController:" id="Xtx-JW-QIf"/>
                             </connections>
                         </barButtonItem>
                         <barButtonItem key="rightBarButtonItem" systemItem="done" id="4IT-vy-s1Q">
@@ -563,11 +563,16 @@
                     </view>
                     <toolbarItems/>
                     <navigationItem key="navigationItem" title="Fotos" id="gly-c4-KuS">
-                        <barButtonItem key="rightBarButtonItem" systemItem="save" id="zgf-Wu-5UR"/>
+                        <barButtonItem key="rightBarButtonItem" enabled="NO" systemItem="save" id="zgf-Wu-5UR">
+                            <connections>
+                                <action selector="saveFoto:" destination="GaH-4I-xoL" id="Q8K-dk-46u"/>
+                            </connections>
+                        </barButtonItem>
                     </navigationItem>
                     <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
                     <connections>
                         <outlet property="imagenFoto" destination="gVE-5X-s2Q" id="Bwo-EL-vdT"/>
+                        <outlet property="saveFoto" destination="zgf-Wu-5UR" id="oMA-du-kT4"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="6oq-NL-tUp" userLabel="First Responder" sceneMemberID="firstResponder"/>

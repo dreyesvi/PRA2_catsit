@@ -19,6 +19,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     let VERSION_NUM = "v1"
     
     var backendless = Backendless.sharedInstance()
+    
+    
+    
 
     var window: UIWindow?
 
