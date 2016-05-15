@@ -20,6 +20,9 @@ class HacerFotoViewController: UIViewController, UINavigationControllerDelegate,
     var sitio: Sitio?
     var imagen: Imagen?
     
+    
+    
+    
     @IBAction func hacerFoto(sender: AnyObject) {
         
         imagePicker =  UIImagePickerController()
@@ -71,6 +74,20 @@ class HacerFotoViewController: UIViewController, UINavigationControllerDelegate,
     @IBAction func saveFoto(sender: UIBarButtonItem) {
         
         
+        // Variable para mostrar el indicador de actividad mientras se está registrando el usuario
+        let indicador = UIActivityIndicatorView(activityIndicatorStyle: .Gray)
+        
+        //Mostrar indicador de actividad
+        UIApplication.sharedApplication().beginIgnoringInteractionEvents()
+        //indicador.activityIndicatorViewStyle  = UIActivityIndicatorViewStyle.Gray;
+        indicador.center = self.view.center;
+        
+        self.view.addSubview(indicador)
+        indicador.startAnimating()
+        print(indicador)
+
+        
+        
         let backendless = Backendless.sharedInstance()
         
         let user = backendless.userService.currentUser
@@ -83,8 +100,8 @@ class HacerFotoViewController: UIViewController, UINavigationControllerDelegate,
         imagen?.idSitio = sitio?.nombre
         
         // nombre del fichero de la foto e id de la imagen
-        let idImagen = Int(rand())
-        
+        //let idImagen = Int(rand())
+        let idImagen = Int(arc4random_uniform(9999999))
         
         
         imagen?.idImagen = Int(idImagen)
@@ -126,6 +143,12 @@ class HacerFotoViewController: UIViewController, UINavigationControllerDelegate,
                        catchblock: { (exception) -> Void in
                         print("Server reported an error: \(exception as! Fault)")
         })
+        
+        
+        // Parar animacion y volver a permitir interacción
+        UIApplication.sharedApplication().endIgnoringInteractionEvents()
+        indicador.stopAnimating()
+        
         
     }
     

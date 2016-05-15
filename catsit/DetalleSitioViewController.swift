@@ -23,6 +23,8 @@ class DetalleSitioViewController: UITableViewController, UITextFieldDelegate, UI
     
     // variable para guardar los datos del nuevo sitio
     var sitio: Sitio?
+    // variable para guardar los datos de localizacion
+    var localizaSitio: GeoPoint?
     
     
     override func viewDidLoad() {
@@ -66,6 +68,14 @@ class DetalleSitioViewController: UITableViewController, UITextFieldDelegate, UI
         return true
     }
     
+    
+    
+    
+    
+    
+    
+    
+    
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         
         if segue.identifier == "saveDetalleSitio" {
@@ -83,7 +93,13 @@ class DetalleSitioViewController: UITableViewController, UITextFieldDelegate, UI
             sitio = Sitio()
             sitio?.nombre=nombreTextField.text
             sitio?.descripcion=descripcionTextView.text
-            
+            if localizaSitio != nil{
+               sitio?.localizacion=localizaSitio
+            }
+                else{
+                sitio?.localizacion = GeoPoint()
+            }
+ 
             sitio?.usuario_idUsuario=idUsuario
             
             let dataStore = backendless.data.of(Sitio.ofClass());
@@ -187,7 +203,22 @@ class DetalleSitioViewController: UITableViewController, UITextFieldDelegate, UI
     }
     
 
-    
+    @IBAction func saveLocalizacion(segue:UIStoryboardSegue) {
+        
+        
+        if let MapaSitioViewController = segue.sourceViewController as? MapaSitioViewController {
+            
+            if let location = MapaSitioViewController.location {
+                
+                //Actualiza la localización del sitio
+                localizaSitio = GeoPoint(point: GEO_POINT(latitude: location.coordinate.latitude,longitude: location.coordinate.longitude), categories: nil)
+                print("localización guardada: \(location.coordinate.latitude) \(location.coordinate.longitude)")
+                
+            }
+        }
+        
+        }
+
     
     
     

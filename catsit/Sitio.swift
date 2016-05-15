@@ -14,8 +14,7 @@ class Sitio : NSObject {
     var descripcion: String?
     var direccion: String?
     //var idSitio: Int=0
-    //var latitud: GeoPoint?
-    //var longitud: GeoPoint?
+    var localizacion: GeoPoint?
     var nombre: String?
     var pais: String?
     var provincia: String?
