@@ -298,7 +298,13 @@
                                     <constraints>
                                         <constraint firstItem="rBh-CT-jr6" firstAttribute="top" secondItem="mQC-60-Gy4" secondAttribute="top" id="5db-FA-dIe"/>
                                         <constraint firstItem="rBh-CT-jr6" firstAttribute="leading" secondItem="mQC-60-Gy4" secondAttribute="leadingMargin" id="Aai-tw-jPk"/>
+                                        <constraint firstAttribute="trailingMargin" secondItem="rBh-CT-jr6" secondAttribute="trailing" constant="55" id="rea-zT-ICe"/>
                                     </constraints>
+                                    <variation key="default">
+                                        <mask key="constraints">
+                                            <exclude reference="rea-zT-ICe"/>
+                                        </mask>
+                                    </variation>
                                 </tableViewCellContentView>
                                 <connections>
                                     <outlet property="descripcionLabel" destination="dPg-mc-lpL" id="IiK-Xv-MZD"/>
@@ -1372,13 +1378,21 @@
                                                         <segue destination="HC4-7J-sV9" kind="show" id="Duc-bb-DTg"/>
                                                     </connections>
                                                 </button>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="No tiene localización registrada" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="r4k-5g-i4K">
+                                                    <rect key="frame" x="180" y="100" width="240" height="21"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
                                             </subviews>
                                             <constraints>
                                                 <constraint firstItem="FAp-zy-Oig" firstAttribute="top" secondItem="OEf-Kb-IRX" secondAttribute="topMargin" constant="-8" id="FGc-F8-qsB"/>
                                                 <constraint firstItem="FAp-zy-Oig" firstAttribute="bottom" secondItem="OEf-Kb-IRX" secondAttribute="bottomMargin" constant="8" id="JcY-Zo-PU6"/>
                                                 <constraint firstItem="FAp-zy-Oig" firstAttribute="trailing" secondItem="OEf-Kb-IRX" secondAttribute="trailingMargin" constant="8" id="TeF-bQ-QC4"/>
+                                                <constraint firstItem="r4k-5g-i4K" firstAttribute="centerX" secondItem="FAp-zy-Oig" secondAttribute="centerX" id="VWO-bf-0SX"/>
                                                 <constraint firstItem="5h6-gs-L3T" firstAttribute="centerY" secondItem="FAp-zy-Oig" secondAttribute="centerY" id="Vch-pG-Jnh"/>
                                                 <constraint firstItem="FAp-zy-Oig" firstAttribute="leading" secondItem="OEf-Kb-IRX" secondAttribute="leadingMargin" constant="-8" id="btP-45-5MU"/>
+                                                <constraint firstItem="r4k-5g-i4K" firstAttribute="centerY" secondItem="FAp-zy-Oig" secondAttribute="centerY" id="cnA-cG-JVa"/>
                                                 <constraint firstItem="5h6-gs-L3T" firstAttribute="centerX" secondItem="FAp-zy-Oig" secondAttribute="centerX" id="coF-Hs-qgK"/>
                                             </constraints>
                                         </tableViewCellContentView>
@@ -1408,6 +1422,11 @@
                                     <action selector="borrarButton:" destination="nzg-Aa-19z" id="uiS-UE-xEH"/>
                                 </connections>
                             </barButtonItem>
+                            <barButtonItem systemItem="refresh" id="kkQ-Cc-kgZ">
+                                <connections>
+                                    <action selector="refrescarFotos:" destination="nzg-Aa-19z" id="8wr-3s-RRH"/>
+                                </connections>
+                            </barButtonItem>
                         </rightBarButtonItems>
                     </navigationItem>
                     <connections>
@@ -1418,7 +1437,9 @@
                         <outlet property="descripcionTextView" destination="UFQ-Ld-0Ts" id="xb3-Ph-Rvf"/>
                         <outlet property="editarSitio" destination="Lwd-go-49Y" id="zqy-4v-wki"/>
                         <outlet property="mapa" destination="FAp-zy-Oig" id="nSv-DV-mep"/>
+                        <outlet property="mensajeMapa" destination="r4k-5g-i4K" id="W4R-To-Xrx"/>
                         <outlet property="obtenerLocalizacion" destination="5h6-gs-L3T" id="Tf8-1R-nf3"/>
+                        <outlet property="refrescarFotos" destination="kkQ-Cc-kgZ" id="B43-rw-QVH"/>
                         <outlet property="titulo" destination="a4r-H0-2P5" id="IQG-mN-ukl"/>
                         <segue destination="yx9-Nz-vnd" kind="unwind" identifier="deleteEditarSitio" unwindAction="deleteEditarSitioTableViewController:" id="Rbn-KL-RLL"/>
                     </connections>
@@ -1473,8 +1494,8 @@
         <image name="missitios" width="25" height="25"/>
     </resources>
     <inferredMetricsTieBreakers>
+        <segue reference="cYM-5k-Egn"/>
         <segue reference="vNr-6I-d8E"/>
         <segue reference="Duc-bb-DTg"/>
-        <segue reference="cYM-5k-Egn"/>
     </inferredMetricsTieBreakers>
 </document>

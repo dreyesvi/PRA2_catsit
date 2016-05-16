@@ -113,8 +113,23 @@ class FotoViewController: UIViewController {
     
     }
     
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+    
+    
+  
+    
+    
+    
+    override func didReceiveMemoryWarning() {
+        super.didReceiveMemoryWarning()
+        // Dispose of any resources that can be recreated.
+    }
+    /*
+    // MARK: - Navigation
 
+     */
+
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        
         if segue.identifier == "addFotos" {
             
             // pasa como parámetro el identificador del nuevo sitio a la pantalla de fotos
@@ -125,25 +140,23 @@ class FotoViewController: UIViewController {
             sitio.nombre = imagen?.idSitio
             
             vcDestino.sitio = sitio
+            
+            vcDestino.delegate = self
         }
-        
-        
         
     }
 
     
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
-    /*
-    // MARK: - Navigation
+    
+}
 
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
-    }
-    */
+// Actualiza la imagen con la imagen capturada en el
+// ViewController HacerFotoViewController
 
+extension FotoViewController: VCdevolverFotoDelegate {
+    func actualizarFoto (data: UIImage) {
+        
+        self.foto.image = data
+        
+    }
 }

@@ -13,12 +13,12 @@ class Sitio : NSObject {
     var objectId: String?
     var descripcion: String?
     var direccion: String?
-    //var idSitio: Int=0
     var localizacion: GeoPoint?
     var nombre: String?
     var pais: String?
     var provincia: String?
     var usuario_idUsuario: String?
+    var descRecortada: String?
  
    
     override init(){

@@ -8,6 +8,12 @@
 
 import UIKit
 
+protocol VCdevolverFotoDelegate {
+    
+    func actualizarFoto(data: UIImage)
+    
+}
+
 class HacerFotoViewController: UIViewController, UINavigationControllerDelegate, UIImagePickerControllerDelegate {
 
     
@@ -19,6 +25,8 @@ class HacerFotoViewController: UIViewController, UINavigationControllerDelegate,
     
     var sitio: Sitio?
     var imagen: Imagen?
+    
+    var delegate: VCdevolverFotoDelegate?
     
     
     
@@ -64,6 +72,8 @@ class HacerFotoViewController: UIViewController, UINavigationControllerDelegate,
             }
         else {
             self.saveFoto.enabled=true
+            // se actualiza la imagen para devolverla al VC de Origen
+            self.delegate?.actualizarFoto(imagenFoto.image!)
         }
         
     }
@@ -154,7 +164,7 @@ class HacerFotoViewController: UIViewController, UINavigationControllerDelegate,
     
     
     
-    
+ 
     
     
     

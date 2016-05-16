@@ -23,6 +23,11 @@ class EditarSitioTableViewController: UITableViewController, UICollectionViewDel
     
     @IBOutlet weak var addFotos: UIButton!
     
+    @IBOutlet weak var refrescarFotos: UIBarButtonItem!
+    
+    @IBOutlet weak var mensajeMapa: UILabel!
+    
+    
     
     
     // variable para guardar los datos del nuevo sitio
@@ -37,17 +42,15 @@ class EditarSitioTableViewController: UITableViewController, UICollectionViewDel
     var imagenesArray:[UIImage] = []
     var arrayImagenes:[Imagen]=[]
     
-    var celdaSeleccionada = -1
+    var celdaSeleccionada = 0
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // Uncomment the following line to preserve selection between presentations
-        // self.clearsSelectionOnViewWillAppear = false
-        // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-        // self.navigationItem.rightBarButtonItem = self.editButtonItem()
+      
         
+       
         titulo.title = sitio?.nombre
         descripcionTextView.text = sitio?.descripcion
         
@@ -66,7 +69,14 @@ class EditarSitioTableViewController: UITableViewController, UICollectionViewDel
                 nota.title = sitio?.nombre
         
                 mapa.addAnnotation(nota)
+            
+                mapa.hidden=false
+                mensajeMapa.hidden=true
              }
+        else{
+            mapa.hidden=true
+            mensajeMapa.hidden=false
+        }
         
            // leer todas las fotos del sitio
         
@@ -158,15 +168,23 @@ class EditarSitioTableViewController: UITableViewController, UICollectionViewDel
             editarSitio.title = "Edit"
             isEditingMode = false
             
+            let indicador = UIActivityIndicatorView(activityIndicatorStyle: .Gray)
+            //Mostrar indicador de actividad
+            UIApplication.sharedApplication().beginIgnoringInteractionEvents()
+            indicador.activityIndicatorViewStyle  = UIActivityIndicatorViewStyle.Gray;
+            indicador.center = self.view.center;
+            self.view.addSubview(indicador)
+            self.view.bringSubviewToFront(indicador)
+            indicador.hidden=false
+            indicador.startAnimating()
+            print(indicador)
+
             
             // Se actualizan los datos
             
             let backendless = Backendless.sharedInstance()
             
             //let user = backendless.userService.currentUser
-            
-            
-            
             
             
             sitio?.descripcion=descripcionTextView.text
@@ -188,6 +206,14 @@ class EditarSitioTableViewController: UITableViewController, UICollectionViewDel
                             print("id usuario: \(self.sitio?.usuario_idUsuario)")
                             
             })
+            
+            
+            // Parar animacion y volver a permitir interacción
+            UIApplication.sharedApplication().endIgnoringInteractionEvents()
+            indicador.stopAnimating()
+            
+            
+            
         }
         else
         {
@@ -303,7 +329,7 @@ class EditarSitioTableViewController: UITableViewController, UICollectionViewDel
             //let addEventViewController = nav.topViewController as! FotoViewController
             
            // let image = self.imagenesArray[celdaSeleccionada]
-            if (celdaSeleccionada >= 0) {
+            if (!self.arrayImagenes.isEmpty) {
                 nav.imagen = Imagen()
                 nav.imagen = self.arrayImagenes[celdaSeleccionada]
             }
@@ -321,13 +347,103 @@ class EditarSitioTableViewController: UITableViewController, UICollectionViewDel
     @IBAction func borrarFotoSegue(segue:UIStoryboardSegue) {
         
         
-        // Se ha borrado una imagen
+        // Se ha borrado una imagen se actualiza el collectionView
+      
+        
+        fotosArray.removeAtIndex(celdaSeleccionada)
+        coleccionFotos.reloadData()
+        
         
         
         
     }
     
     
+    @IBAction func refrescarFotos(sender: UIBarButtonItem) {
+        
+        
+        //Mostrar indicador de actividad
+   /*     UIApplication.sharedApplication().beginIgnoringInteractionEvents()
+        //indicador.activityIndicatorViewStyle  = UIActivityIndicatorViewStyle.Gray;
+        //indicador.center = self.view.center;
+        //self.view.addSubview(indicador)
+        //self.view.bringSubviewToFront(indicador)
+        indicador.hidden=false
+        indicador.startAnimating()
+        UIApplication.sharedApplication().beginIgnoringInteractionEvents()
+        print(indicador)*/
+        
+        // Borra las fotos del array de fotos
+        
+        self.fotosArray.removeAll()
+        self.arrayImagenes.removeAll()
+        self.imagenesArray.removeAll()
+        
+        
+        // leer todas las fotos del sitio
+        
+        let backendless = Backendless.sharedInstance()
+        
+        
+        // Prepara una consulta a la tabla sitio filtrando solo los sitios del usuario
+        let query = BackendlessDataQuery()
+        let whereClause = "idUsuario = '\(sitio!.usuario_idUsuario!)' and idSitio = '\(sitio!.nombre!)'"
+        query.whereClause = whereClause
+        
+        Types.tryblock({ () -> Void in
+            
+            // realiza la consulta a la bb.dd y obtiene los resultados
+            let sitios = backendless.persistenceService.of(Imagen.ofClass()).find(query)
+            let currentPage = sitios.getCurrentPage()
+            
+            if currentPage.count==0 {
+                
+                //Si no hay imagenes asociadas al sitio se oculta el CollectionView y se muestra
+                // un botón para añadir fotos
+                
+                self.coleccionFotos.hidden=true
+                self.addFotos.hidden=false
+                
+                
+                
+            }
+            else
+            {
+                
+                self.coleccionFotos.hidden=false
+                self.addFotos.hidden=true
+                
+                
+                // Carga la información de las imágenes en un array
+                for imagen in currentPage as! [Imagen] {
+                    self.fotosArray.append(imagen.imagen!)
+                    self.arrayImagenes.append(imagen)
+                    if let url  = NSURL(string: imagen.imagen!),
+                        data = NSData(contentsOfURL: url)
+                    {
+                        self.imagenesArray.append(UIImage(data: data)!)
+                    }
+                }
+            }
+            },
+                       catchblock: { (exception) -> Void in
+                        print("Server reported an error: \(exception)")
+                        print (whereClause)
+        })
+        
+
+        
+        
+        
+        
+        
+        coleccionFotos.reloadData()
+        
+        // Parar animacion y volver a permitir interacción
+       /* UIApplication.sharedApplication().endIgnoringInteractionEvents()
+        indicador.stopAnimating()
+        indicador.hidden=true*/
+    }
     
     
     
