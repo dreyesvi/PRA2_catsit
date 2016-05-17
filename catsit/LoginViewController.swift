@@ -70,11 +70,11 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
         }
         else{
           // Sino se ha detectado un error se valida el usuario y contrasena
-        
+               dispatch_async(dispatch_get_main_queue(), { () -> Void in
             
                 let backendless = Backendless.sharedInstance()
         
-                backendless.userService.login(idUsuario.text, password: contrasena.text,
+                backendless.userService.login(self.idUsuario.text, password: self.contrasena.text,
                                       response: { (logedInUser) -> Void in
                                         
                                         // codigo en caso de login correcto
@@ -97,12 +97,15 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
                                         self.presentViewController(alertController, animated: true, completion: nil)
                                         
                     })
+                  self.indicador.stopAnimating()
+                
+                })
 
             }
        
         // Parar animacion y volver a permitir interacción
        UIApplication.sharedApplication().endIgnoringInteractionEvents()
-       indicador.stopAnimating()
+       
     
     }
     

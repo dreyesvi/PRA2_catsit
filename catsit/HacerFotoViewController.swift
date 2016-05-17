@@ -8,6 +8,11 @@
 
 import UIKit
 
+
+/*
+ Esta clase tiene definido un protocolo para devolver la imagen realizada 
+ o seleccionada a la pantalla “FotoViewController”.
+*/
 protocol VCdevolverFotoDelegate {
     
     func actualizarFoto(data: UIImage)
@@ -94,70 +99,71 @@ class HacerFotoViewController: UIViewController, UINavigationControllerDelegate,
         
         self.view.addSubview(indicador)
         indicador.startAnimating()
-        print(indicador)
+       
+
+        dispatch_async(dispatch_get_main_queue(), { () -> Void in
+        
+            let backendless = Backendless.sharedInstance()
+        
+            let user = backendless.userService.currentUser
+        
+            // Obtiene el valor del campo idusuario del usuario actual en un string
+            let idUsuario = user.getProperty("idusuario") as! String
+        
+            self.imagen = Imagen()
+            self.imagen?.idUsuario = idUsuario
+            self.imagen?.idSitio = self.sitio?.nombre
+        
+            // nombre del fichero de la foto e id de la imagen
+            //let idImagen = Int(rand())
+            let idImagen = Int(arc4random_uniform(9999999))
+        
+        
+            self.imagen?.idImagen = Int(idImagen)
+        
+            let dataStore = backendless.data.of(Imagen.ofClass());
 
         
-        
-        let backendless = Backendless.sharedInstance()
-        
-        let user = backendless.userService.currentUser
-        
-        // Obtiene el valor del campo idusuario del usuario actual en un string
-        let idUsuario = user.getProperty("idusuario") as! String
-        
-        imagen = Imagen()
-        imagen?.idUsuario = idUsuario
-        imagen?.idSitio = sitio?.nombre
-        
-        // nombre del fichero de la foto e id de la imagen
-        //let idImagen = Int(rand())
-        let idImagen = Int(arc4random_uniform(9999999))
-        
-        
-        imagen?.idImagen = Int(idImagen)
-        
-        let dataStore = backendless.data.of(Imagen.ofClass());
-
-        
-        Types.tryblock({ () -> Void in
+            Types.tryblock({ () -> Void in
             
-            // convierte la foto a formato content NSData
-            let data = UIImageJPEGRepresentation(self.imagenFoto.image!, 0.8)
+                // convierte la foto a formato content NSData
+                let data = UIImageJPEGRepresentation(self.imagenFoto.image!, 0.8)
             
-            // Path donde se guardan las fotos en backendless
-            let path = "FotosSitios/"
+                // Path donde se guardan las fotos en backendless
+                let path = "FotosSitios/"
             
-            // le añade la extensión al nombre de la foto
-            let filename = String(idImagen) + ".jpg"
-            // path completo de la foto
-            let pathfile = path + filename
-            // sube la foto a backendless
-            let uploadedFile = backendless.fileService.upload(pathfile, content: data, overwrite:true)
-            print("File has been uploaded. File URL is - \(uploadedFile.fileURL)")
+                // le añade la extensión al nombre de la foto
+                let filename = String(idImagen) + ".jpg"
+                // path completo de la foto
+                let pathfile = path + filename
+                // sube la foto a backendless
+                let uploadedFile = backendless.fileService.upload(pathfile, content: data, overwrite:true)
+                print("File has been uploaded. File URL is - \(uploadedFile.fileURL)")
             
-            // guarda el path donde se ha subido la imagen
-            self.imagen?.imagen = uploadedFile.fileURL
+                // guarda el path donde se ha subido la imagen
+                self.imagen?.imagen = uploadedFile.fileURL
             
-            // guarda los datos de la imagen
-            let result = dataStore.save(self.imagen) as? Imagen
-            print ("id objecto: \(result!.objectId)")
+                // guarda los datos de la imagen
+                let result = dataStore.save(self.imagen) as? Imagen
+                print ("id objecto: \(result!.objectId)")
             
-            // desactovar el botón save una vez guardado
-            self.saveFoto.enabled = false
+                // desactovar el botón save una vez guardado
+                self.saveFoto.enabled = false
            
             
        
             
-            },
+                },
                        
                        catchblock: { (exception) -> Void in
                         print("Server reported an error: \(exception as! Fault)")
-        })
-        
+            })
+        indicador.stopAnimating()
+       })
         
         // Parar animacion y volver a permitir interacción
         UIApplication.sharedApplication().endIgnoringInteractionEvents()
-        indicador.stopAnimating()
+        
         
         
     }

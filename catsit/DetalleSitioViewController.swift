@@ -78,44 +78,49 @@ class DetalleSitioViewController: UITableViewController, UITextFieldDelegate, UI
     
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         
+        
+        
         if segue.identifier == "saveDetalleSitio" {
             
-            let backendless = Backendless.sharedInstance()
             
-            let user = backendless.userService.currentUser
+
             
-            //let idSitio = Int(rand())
+                    let backendless = Backendless.sharedInstance()
             
-            // Obtiene el valor del campo idusuario del usuario actual en un string
-            let idUsuario = user.getProperty("idusuario") as! String
+                    let user = backendless.userService.currentUser
             
-            //sitio = Sitio(idSitio: idSitio, nombre: nombreTextField.text!, descripcion: descripcionTextView.text, idUsuario: idUsuario)
-            sitio = Sitio()
-            sitio?.nombre=nombreTextField.text
-            sitio?.descripcion=descripcionTextView.text
-            if localizaSitio != nil{
-               sitio?.localizacion=localizaSitio
-            }
-                else{
-                sitio?.localizacion = GeoPoint()
-            }
+           
+                    // Obtiene el valor del campo idusuario del usuario actual en un string
+                    let idUsuario = user.getProperty("idusuario") as! String
+            
+                    //sitio = Sitio(idSitio: idSitio, nombre: nombreTextField.text!, descripcion: descripcionTextView.text, idUsuario: idUsuario)
+                    self.sitio = Sitio()
+                    self.sitio?.nombre=self.nombreTextField.text
+                    self.sitio?.descripcion=self.descripcionTextView.text
+                    if self.localizaSitio != nil{
+                            self.sitio?.localizacion=self.localizaSitio
+                        }
+                        else{
+                            self.sitio?.localizacion = GeoPoint()
+                    }
  
-            sitio?.usuario_idUsuario=idUsuario
+                    self.sitio?.usuario_idUsuario=idUsuario
             
-            let dataStore = backendless.data.of(Sitio.ofClass());
-            Types.tryblock({ () -> Void in
+                    let dataStore = backendless.data.of(Sitio.ofClass());
+                    Types.tryblock({ () -> Void in
             
-                    let result = dataStore.save(self.sitio) as? Sitio
-                    print ("id objecto: \(result!.objectId)")
-                    print("Sitio guardado con id: \(self.nombreTextField.text!)")
-                },
-                           catchblock: { (exception) -> Void in
-                            print("Server reported an error: \(exception)")
-                            print("id sitio: \(self.nombreTextField.text!)")
-                            print("id usuario: \(idUsuario)")
+                            let result = dataStore.save(self.sitio) as? Sitio
+                            print ("id objecto: \(result!.objectId)")
+                            print("Sitio guardado con id: \(self.nombreTextField.text!)")
+                            },
+                                catchblock: { (exception) -> Void in
+                                    print("Server reported an error: \(exception)")
+                                    print("id sitio: \(self.nombreTextField.text!)")
+                                    print("id usuario: \(idUsuario)")
                             
-            })
-            
+                        })
+         
+          
         }
         
         
@@ -124,65 +129,76 @@ class DetalleSitioViewController: UITableViewController, UITextFieldDelegate, UI
         
         if segue.identifier == "cancelDetalleSitio" {
             
-            let backendless = Backendless.sharedInstance()
+            //Mostrar indicador de actividad
+            let indicador = UIActivityIndicatorView(activityIndicatorStyle: .Gray)
+            indicador.center = self.view.center;
+            self.view.addSubview(indicador)
+            self.view.bringSubviewToFront(indicador)
+            indicador.hidden=false
+            indicador.hidesWhenStopped=true
+            indicador.startAnimating()
             
-            let user = backendless.userService.currentUser
+            dispatch_async(dispatch_get_main_queue(), { () -> Void in
             
-            //let idSitio = Int(rand())
+                    let backendless = Backendless.sharedInstance()
             
-            var error: Fault?
+                    let user = backendless.userService.currentUser
             
-            // Path donde se guardan las fotos en backendless
-            let path = "FotosSitios/"
+                    var error: Fault?
             
-            // Obtiene el valor del campo idusuario del usuario actual en un string
-            let idUsuario = user.getProperty("idusuario") as! String
+                    // Path donde se guardan las fotos en backendless
+                    let path = "FotosSitios/"
             
-            // Prepara una consulta a la tabla imagen filtrando solo las fotos del nuevo sitio del usuario
-            let query = BackendlessDataQuery()
-            let whereClause = "idUsuario = '\(idUsuario)' and idSitio='\(self.nombreTextField.text!)'"
-            query.whereClause = whereClause
+                    // Obtiene el valor del campo idusuario del usuario actual en un string
+                    let idUsuario = user.getProperty("idusuario") as! String
             
-            let dataStore = backendless.data.of(Imagen.ofClass());
+                    // Prepara una consulta a la tabla imagen filtrando solo las fotos del nuevo sitio del usuario
+                    let query = BackendlessDataQuery()
+                    let whereClause = "idUsuario = '\(idUsuario)' and idSitio='\(self.nombreTextField.text!)'"
+                    query.whereClause = whereClause
+            
+                    let dataStore = backendless.data.of(Imagen.ofClass());
 
-            Types.tryblock({ () -> Void in
+                    Types.tryblock({ () -> Void in
                 
-                // realiza la consulta a la bb.dd y obtiene los resultados
-                let imagenes = backendless.persistenceService.of(Imagen.ofClass()).find(query)
-                let currentPage = imagenes.getCurrentPage()
+                            // realiza la consulta a la bb.dd y obtiene los resultados
+                            let imagenes = backendless.persistenceService.of(Imagen.ofClass()).find(query)
+                            let currentPage = imagenes.getCurrentPage()
                 
-                // recorre las imágenes y borra una a una
-                for img in currentPage as! [Imagen] {
+                            // recorre las imágenes y borra una a una
+                            for img in currentPage as! [Imagen] {
                     
-                    // Borrado del fichero de imagen
+                                    // Borrado del fichero de imagen
                     
-                    var nomfichero = String(img.idImagen) + ".jpg"
+                                    var nomfichero = String(img.idImagen) + ".jpg"
                     
-                    nomfichero = path + nomfichero
+                                    nomfichero = path + nomfichero
                     
-                    let result = backendless.fileService.remove(nomfichero)
-                    print("Filchero borrado: \(nomfichero) result= \(result)")
+                                    let result = backendless.fileService.remove(nomfichero)
+                                    print("Filchero borrado: \(nomfichero) result= \(result)")
                     
-                    // Borrado de la imagen de la bb.dd.
-                    let resultbbdd = dataStore.remove(img, fault: &error)
-                    if error == nil {
-                        print("Imagen borrada bb.dd: \(img.idImagen) codigo: \(resultbbdd)")
-                    }
-                    else {
-                        print("Server reported an error: \(error)")
-                    }                   
+                                    // Borrado de la imagen de la bb.dd.
+                                    let resultbbdd = dataStore.remove(img, fault: &error)
+                                    if error == nil {
+                                            print("Imagen borrada bb.dd: \(img.idImagen) codigo: \(resultbbdd)")
+                                        }
+                                        else {
+                                            print("Server reported an error: \(error)")
+                                    }
                     
-                }
+                            }
             
                 
-                },
+                            },
                            
-                           catchblock: { (exception) -> Void in
-                            print("Server reported an error: \(exception as! Fault)")
-                }
-            )
+                                catchblock: { (exception) -> Void in
+                                        print("Server reported an error: \(exception as! Fault)")
+                            }
+                    )
             
+            })
             
+            indicador.stopAnimating()
         }
         
 
@@ -219,6 +235,43 @@ class DetalleSitioViewController: UITableViewController, UITextFieldDelegate, UI
         
         }
 
+    
+    
+    @IBAction func addFotos(sender: UIButton) {
+        
+        // Verificar campo nombre
+        
+        if nombreTextField.text == ""{
+            
+            
+            nombreTextField.backgroundColor = UIColor.redColor()
+            
+            let alertController = UIAlertController(title: "Error", message: "Introduzca nombre del sitio", preferredStyle: .Alert)
+            let OKAction = UIAlertAction(title: "OK", style: .Default){ (action) in }
+            alertController.addAction(OKAction)
+            self.presentViewController(alertController, animated: true, completion: nil)
+
+            
+        }
+        else
+        {
+            nombreTextField.backgroundColor = UIColor.whiteColor()
+        }
+
+        
+        
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     
     

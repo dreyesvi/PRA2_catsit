@@ -12,43 +12,38 @@ class FotoViewController: UIViewController {
 
     
     @IBOutlet weak var foto: UIImageView!
-    
     @IBOutlet weak var borrarFoto: UIBarButtonItem!
-    
-    
     @IBOutlet weak var addFoto: UIBarButtonItem!
-    
+
+    // variable para pasar la imagen por parámetro
     var imagen: Imagen?
     
     
     
-    
+    /*
+    Si por parámetro se le ha pasado la dirección web de la imagen se recupera de backendless y se carga en el UIImage.
+    */
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // Do any additional setup after loading the view.
-        
-      //  foto=imagen
         if imagen?.imagen != nil {
-          
-        
+            // si se ha pasado una imagen por parámetro se recupera de backendless
             if let url  = NSURL(string: imagen!.imagen!),
                 data = NSData(contentsOfURL: url)
             {
                 self.foto.image = UIImage(data: data)!
             }
         }
-        
-        
-        
-        
-        
-        
-        
     }
 
-  
+ 
     
+    
+    /*
+    Al pulsar el botón borrar se solicita confirmación al usuario, en el caso de que reponda “OK” se borra el fichero de la 
+     imagen asociado en backendless, los datos de la imagen de la base de datos 
+     y se hace un unwind segue manual a “borrarFotoSegue” a la pantalla de EditarSitioTableViewController.
+     */
     @IBAction func borrarFoto(sender: UIBarButtonItem) {
     
         let refreshAlert = UIAlertController(title: "Delete", message: "¿ Desea borrar la imagen?", preferredStyle: UIAlertControllerStyle.Alert)
@@ -72,7 +67,6 @@ class FotoViewController: UIViewController {
             nomfichero = path + nomfichero
             
             Types.tryblock({ () -> Void in
-
             
                 let result = backendless.fileService.remove(nomfichero)
                 print("Filchero borrado: \(nomfichero) result= \(result)")
@@ -84,16 +78,25 @@ class FotoViewController: UIViewController {
                 }
                 else {
                     print("Server reported an error: \(error)")
+                    let mensaje = error?.message
+                    let alertController = UIAlertController(title: "Error", message: mensaje, preferredStyle: .Alert)
+                    let OKAction = UIAlertAction(title: "OK", style: .Default){ (action) in }
+                    alertController.addAction(OKAction)
+                    self.presentViewController(alertController, animated: true, completion: nil)
+
                 }
                 },
                 
                 catchblock: { (exception) -> Void in
                     print("Server reported an error: \(exception as! Fault)")
+                    let mensaje = exception.message
+                    let alertController = UIAlertController(title: "Error", message: mensaje, preferredStyle: .Alert)
+                    let OKAction = UIAlertAction(title: "OK", style: .Default){ (action) in }
+                    alertController.addAction(OKAction)
+                    self.presentViewController(alertController, animated: true, completion: nil)
+
                 }
             )
-
-            
-
             
             // volver al detalle del sitio.
             self.performSegueWithIdentifier("borrarFotoSegue", sender: self)
@@ -101,15 +104,9 @@ class FotoViewController: UIViewController {
           }))
     
         refreshAlert.addAction(UIAlertAction(title: "CANCEL", style: .Cancel, handler: { (action: UIAlertAction!) in
-            
-            
-            
-            
         }))
         
         presentViewController(refreshAlert, animated: true, completion: nil)
-
-    
     
     }
     
@@ -121,13 +118,14 @@ class FotoViewController: UIViewController {
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
     }
+
+    
+ 
     /*
-    // MARK: - Navigation
-
-     */
-
+    Cuando se pulsa el botón añadir foto se asigna como delegado esta pantalla (utiliza un protocolo delegado) 
+     para recibir la foto tomada. Como parámetro cuando vuelva.
+    */
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         
         if segue.identifier == "addFotos" {
@@ -145,9 +143,6 @@ class FotoViewController: UIViewController {
         }
         
     }
-
-    
-    
 }
 
 // Actualiza la imagen con la imagen capturada en el

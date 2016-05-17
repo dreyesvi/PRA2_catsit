@@ -26,16 +26,16 @@ class MisSitiosTableViewController: UITableViewController {
         
         
         // Variable para mostrar el indicador de actividad mientras se está registrando el usuario
-        let indicador = UIActivityIndicatorView(activityIndicatorStyle: .Gray)
+        //_dor = UIActivityIndicatorView(activityIndicatorStyle: .Gray)
         
         //Mostrar indicador de actividad
-        UIApplication.sharedApplication().beginIgnoringInteractionEvents()
+        /*UIApplication.sharedApplication().beginIgnoringInteractionEvents()
         indicador.center = self.view.center;
         self.view.addSubview(indicador)
         self.view.bringSubviewToFront(indicador)
         indicador.hidden=false
         indicador.startAnimating()
-        
+        */
         // Conecta con la instancia de backendless que se ha logineado el usuario
         let backendless = Backendless.sharedInstance()
       
@@ -74,9 +74,9 @@ class MisSitiosTableViewController: UITableViewController {
             })
         
             // Parar animacion y volver a permitir interacción
-            UIApplication.sharedApplication().endIgnoringInteractionEvents()
+         /*   UIApplication.sharedApplication().endIgnoringInteractionEvents()
             indicador.stopAnimating()
-           // indicador.removeFromSuperview()
+           */// indicador.removeFromSuperview()
               
     }
     
@@ -121,7 +121,7 @@ class MisSitiosTableViewController: UITableViewController {
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         
         //Mostrar indicador de actividad
-        UIApplication.sharedApplication().beginIgnoringInteractionEvents()
+       // UIApplication.sharedApplication().beginIgnoringInteractionEvents()
         let indicador = UIActivityIndicatorView(activityIndicatorStyle: .Gray)
         indicador.center = self.view.center;
         self.view.addSubview(indicador)
@@ -148,6 +148,10 @@ class MisSitiosTableViewController: UITableViewController {
         // asigna a la celda prototipo los valores del sitio
         cell.sitio = sitio
         
+        
+        dispatch_async(dispatch_get_main_queue(), { () -> Void in
+        
+            
         // Conecta con la instancia de backendless actual
         let backendless = Backendless.sharedInstance()
         
@@ -159,6 +163,8 @@ class MisSitiosTableViewController: UITableViewController {
         // Solo recupera la primera imagen
         query.queryOptions.pageSize = 1
         
+        
+        
         Types.tryblock({ () -> Void in
             
             // realiza la consulta a la bb.dd y obtiene los resultados
@@ -168,15 +174,23 @@ class MisSitiosTableViewController: UITableViewController {
             //Inizializa la imagen a blanco por si no hay imagenes del sitio
             cell.imagen.image = UIImage()
             
+            
+            
             // Obtiene la primera imagen
             for img in currentPage as! [Imagen] {
+                
+                
                 
                 // recupera la imagen a partir de la dirección URL
                 if let url  = NSURL(string: img.imagen!),
                     data = NSData(contentsOfURL: url)
                 {
-                    cell.imagen.image = UIImage(data: data)
+                  
+                            cell.imagen.image = UIImage(data: data)
+                        
                 }
+                
+                
             
                 break
                 
@@ -189,10 +203,12 @@ class MisSitiosTableViewController: UITableViewController {
                 print (whereClause)
         })
         
+            indicador.stopAnimating()
+            })
       
         // Parar animacion y volver a permitir interacción
-        UIApplication.sharedApplication().endIgnoringInteractionEvents()
-        indicador.stopAnimating()
+       // UIApplication.sharedApplication().endIgnoringInteractionEvents()
+        //indicador.stopAnimating()
         
         
         return cell
@@ -240,6 +256,8 @@ class MisSitiosTableViewController: UITableViewController {
                 self.view.bringSubviewToFront(indicador)
                 indicador.hidden=false
                 indicador.startAnimating()
+                
+                 dispatch_async(dispatch_get_main_queue(), { () -> Void in
                 
                 // Conecta con la instancia actual de backendless
                 let backendless = Backendless.sharedInstance()
@@ -319,10 +337,14 @@ class MisSitiosTableViewController: UITableViewController {
                 // Elimina el sitio del array y actualiza el tableView
                 self.sitiosArray.removeAtIndex(self.celdaSeleccionada)
                 self.tableView.reloadData()
+                
+                 })
+                
+                indicador.stopAnimating()
             
                 // Parar animacion y volver a permitir interacción
                 UIApplication.sharedApplication().endIgnoringInteractionEvents()
-                indicador.stopAnimating()
+                //indicador.stopAnimating()
                 
             }
         }
@@ -346,16 +368,29 @@ class MisSitiosTableViewController: UITableViewController {
     */
     @IBAction func saveDetalleSitio(segue:UIStoryboardSegue) {
         
+        //Mostrar indicador de actividad
+        let indicador = UIActivityIndicatorView(activityIndicatorStyle: .Gray)
+        indicador.center = self.view.center;
+        self.view.addSubview(indicador)
+        self.view.bringSubviewToFront(indicador)
+        indicador.hidden=false
+        indicador.startAnimating()
         
         if let DetalleSitioViewController = segue.sourceViewController as? DetalleSitioViewController {
             
+            
             if let sitio = DetalleSitioViewController.sitio {
-                //Añade el nuevo sitio al array de sitios
-                sitiosArray.append(sitio)
                 
-                // Actualiza el tableView con el nuevo sitio
-                let indexPath = NSIndexPath(forRow: sitiosArray.count-1, inSection: 0)
-                tableView.insertRowsAtIndexPaths([indexPath], withRowAnimation: .Automatic)
+                dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                    //Añade el nuevo sitio al array de sitios
+                    self.sitiosArray.append(sitio)
+                
+                    // Actualiza el tableView con el nuevo sitio
+                    let indexPath = NSIndexPath(forRow: self.sitiosArray.count-1, inSection: 0)
+                    self.tableView.insertRowsAtIndexPaths([indexPath], withRowAnimation: .Automatic)
+                })
+                
+                indicador.stopAnimating()
                }
         }
     }

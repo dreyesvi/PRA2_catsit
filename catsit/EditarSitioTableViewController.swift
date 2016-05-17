@@ -8,10 +8,10 @@
 
 import UIKit
 
-class EditarSitioTableViewController: UITableViewController, UICollectionViewDelegate, UICollectionViewDataSource  {
+class EditarSitioTableViewController: UITableViewController, UICollectionViewDelegate, UICollectionViewDataSource, UITextFieldDelegate  {
 
     
-    
+    // variables para acceder a los componentes de la vista
     @IBOutlet weak var editarSitio: UIBarButtonItem!
     @IBOutlet weak var deleteSitio: UIBarButtonItem!
     @IBOutlet weak var cancelSitio: UIBarButtonItem!
@@ -20,13 +20,10 @@ class EditarSitioTableViewController: UITableViewController, UICollectionViewDel
     @IBOutlet weak var coleccionFotos: UICollectionView!
     @IBOutlet weak var mapa: MKMapView!
     @IBOutlet weak var obtenerLocalizacion: UIButton!
-    
     @IBOutlet weak var addFotos: UIButton!
-    
     @IBOutlet weak var refrescarFotos: UIBarButtonItem!
-    
     @IBOutlet weak var mensajeMapa: UILabel!
-    
+    @IBOutlet weak var mensajeFotos: UILabel!
     
     
     
@@ -34,88 +31,99 @@ class EditarSitioTableViewController: UITableViewController, UICollectionViewDel
     var sitio: Sitio?
     // variable para guardar los datos de localizacion
     var localizaSitio: GeoPoint?
-    
+    // indica si se ha pulsado el botón "Edit"
     var isEditingMode = false
-    
     // Array con las fotos de un sitio
-    var fotosArray:[String] = []
+//    var fotosArray:[String] = []
     var imagenesArray:[UIImage] = []
     var arrayImagenes:[Imagen]=[]
-    
+    // posición de la imagen seleccionada
     var celdaSeleccionada = 0
     
     
+    
+    
+    
+    /*
+    Carga los datos de detalle de un sitio pasados como parámetro y conecta con backendless 
+    para consultar la lista de imágenes del sitio seleccionado del usuario activo.
+    Carga la lista en las variable “arrayImagenes” para los datos de la imagen y “imagenesArray”
+    para las “UIImage”. Si el sitio tiene localización la muestra como anotación en un mapa.
+    */
     override func viewDidLoad() {
         super.viewDidLoad()
-
-      
         
-       
+        // Asigna el nombre del sitio (pasado como parámetro) a título de la pantalla
         titulo.title = sitio?.nombre
+        // Asigna la descripción del sitio (pasado como parámetro).
         descripcionTextView.text = sitio?.descripcion
         
-        if sitio!.localizacion != nil{
+        // Si el sitio tiene localización muestra la posición en el mapa
+        // como una anotación
+        if (sitio!.localizacion != nil){
+            if (sitio!.localizacion!.longitude != 0 && sitio!.localizacion!.latitude != 0)
+            {
+                // convierte un GeoPoint a formato CLLocation
                 let location = CLLocationCoordinate2D(
                 latitude: CLLocationDegrees(sitio!.localizacion!.latitude!),
                 longitude: CLLocationDegrees(sitio!.localizacion!.longitude!))
-        
+                // posiciona la vista del mapa a la región de las coordenadas del sitio
                 let span = MKCoordinateSpan(latitudeDelta: 0.005,longitudeDelta: 0.005)
                 let region = MKCoordinateRegion(center: location, span: span)
-        
                 mapa.setRegion(region, animated: true)
-        
+                // muestra la posición en el mapa con el nombre del sitio
                 let nota = MKPointAnnotation()
                 nota.coordinate = location
                 nota.title = sitio?.nombre
-        
                 mapa.addAnnotation(nota)
-            
                 mapa.hidden=false
                 mensajeMapa.hidden=true
-             }
+                mapa.showsUserLocation = true
+            }
+            else
+            {
+                //sino hay localización oculta el mapa y muestra un texto
+                mapa.hidden=true
+                mensajeMapa.hidden=false
+            }
+        }
         else{
+            //sino hay localización oculta el mapa y muestra un texto
             mapa.hidden=true
             mensajeMapa.hidden=false
         }
-        
            // leer todas las fotos del sitio
         
-                    let backendless = Backendless.sharedInstance()
         
-       
-                    // Prepara una consulta a la tabla sitio filtrando solo los sitios del usuario
-                    let query = BackendlessDataQuery()
-                    let whereClause = "idUsuario = '\(sitio!.usuario_idUsuario!)' and idSitio = '\(sitio!.nombre!)'"
-                    query.whereClause = whereClause
+           let backendless = Backendless.sharedInstance()
+           // Prepara una consulta a la tabla sitio filtrando solo el sitio seleccionado del usuario
+           let query = BackendlessDataQuery()
+           let whereClause = "idUsuario = '\(self.sitio!.usuario_idUsuario!)' and idSitio = '\(self.sitio!.nombre!)'"
+           query.whereClause = whereClause
         
                     Types.tryblock({ () -> Void in
-            
                             // realiza la consulta a la bb.dd y obtiene los resultados
                             let sitios = backendless.persistenceService.of(Imagen.ofClass()).find(query)
                             let currentPage = sitios.getCurrentPage()
-            
+
                         if currentPage.count==0 {
                          
                             //Si no hay imagenes asociadas al sitio se oculta el CollectionView y se muestra
-                            // un botón para añadir fotos
-                            
+                            // un mensaje
                             self.coleccionFotos.hidden=true
-                            self.addFotos.hidden=false
-                            
-                            
-                            
+                            self.addFotos.hidden=true
+                            self.mensajeFotos.hidden=false
                         }
                         else
                         {
-                            
+                            self.mensajeFotos.hidden=true
                             self.coleccionFotos.hidden=false
                             self.addFotos.hidden=true
                             
                         
                             // Carga la información de las imágenes en un array
                             for imagen in currentPage as! [Imagen] {
-                                    self.fotosArray.append(imagen.imagen!)
-                                    self.arrayImagenes.append(imagen)
+                                     self.arrayImagenes.append(imagen)
                                 if let url  = NSURL(string: imagen.imagen!),
                                     data = NSData(contentsOfURL: url)
                                 {
@@ -127,39 +135,63 @@ class EditarSitioTableViewController: UITableViewController, UICollectionViewDel
                             catchblock: { (exception) -> Void in
                             print("Server reported an error: \(exception)")
                             print (whereClause)
-                        })
+                            let mensaje = exception.message
+                            let alertController = UIAlertController(title: "Error", message: mensaje, preferredStyle: .Alert)
+                            let OKAction = UIAlertAction(title: "OK", style: .Default){ (action) in }
+                            alertController.addAction(OKAction)
+                            self.presentViewController(alertController, animated: true, completion: nil)
+                   
+                    })
+        
+        
+        
+        }
 
-        
-        
-        
-        
-        
-    }
-
+    
+    
+    
+    
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
 
-    // MARK: - Table view data source
-
+    
+    
+    
+    /*
+    Devuelve el número de secciones que tiene el table view, en este caso solo 1.
+     */
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
-        // #warning Incomplete implementation, return the number of sections
+        
         return 1
     }
 
+    
+    /*
+     Devuelve el número de filas que tiene la tabla, en este caso es 3.
+    */
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        // #warning Incomplete implementation, return the number of rows
+        
         return 3
     }
 
     
+    
+    /*
+     La funcionalidad es alterna en función de si el label es “Edit” o “Save”, si es “Edit” oculta 
+     el mapa, muestra el botón de “obtener localización”, pone el campo “descripción” en modo editable
+     y si no hay fotos muestra el botón “Añadir fotos”. Si es “Save” muestra el mapa,  oculta los botones 
+     y deshabilita la edición en el campo descripción.
+    */
     @IBAction func editButton(sender: UIBarButtonItem) {
+        
+     
+
         
         if isEditingMode
         {
-            
-            
             // Pulsa botón "Done" se muestra el
             // mapa y se oculta el boton
             obtenerLocalizacion.hidden = true
@@ -167,32 +199,43 @@ class EditarSitioTableViewController: UITableViewController, UICollectionViewDel
             descripcionTextView.editable = false
             editarSitio.title = "Edit"
             isEditingMode = false
+            // Sino hay imágenes muestra el botón de añadir fotos
+            if arrayImagenes.count==0{
+                mensajeFotos.hidden=true
+                addFotos.hidden=false
+            }
+            else
+            {
+                mensajeFotos.hidden=true
+                addFotos.hidden=true
+            }
             
-            let indicador = UIActivityIndicatorView(activityIndicatorStyle: .Gray)
             //Mostrar indicador de actividad
+            let indicador = UIActivityIndicatorView(activityIndicatorStyle: .Gray)
             UIApplication.sharedApplication().beginIgnoringInteractionEvents()
             indicador.activityIndicatorViewStyle  = UIActivityIndicatorViewStyle.Gray;
             indicador.center = self.view.center;
             self.view.addSubview(indicador)
-            self.view.bringSubviewToFront(indicador)
+            indicador.hidesWhenStopped=true
             indicador.hidden=false
-            indicador.startAnimating()
-            print(indicador)
-
-            
-            // Se actualizan los datos
-            
-            let backendless = Backendless.sharedInstance()
-            
-            //let user = backendless.userService.currentUser
             
             
+            
+            
+            // Actualiza la descripción del sitio
             sitio?.descripcion=descripcionTextView.text
+            
+            // Actualiza la localización del sitio
             if localizaSitio != nil{
                 sitio?.localizacion=localizaSitio
             }
-            
-            
+            indicador.startAnimating()
+            dispatch_async(dispatch_get_main_queue(), { () -> Void in
+                
+                // conecta con la instancia actual
+                let backendless = Backendless.sharedInstance()
+                
+            // Actualiza el sitio en la bb.dd.
             let dataStore = backendless.data.of(Sitio.ofClass());
             Types.tryblock({ () -> Void in
                 
@@ -204,40 +247,57 @@ class EditarSitioTableViewController: UITableViewController, UICollectionViewDel
                             print("Server reported an error: \(exception)")
                             print("id sitio: \(self.sitio?.nombre)")
                             print("id usuario: \(self.sitio?.usuario_idUsuario)")
-                            
+                            let mensaje = exception.message
+                            let alertController = UIAlertController(title: "Error", message: mensaje, preferredStyle: .Alert)
+                            let OKAction = UIAlertAction(title: "OK", style: .Default){ (action) in }
+                            alertController.addAction(OKAction)
+                            self.presentViewController(alertController, animated: true, completion: nil)
+                })
+                
+                indicador.stopAnimating()
+                // Parar animacion y volver a permitir interacción
+                UIApplication.sharedApplication().endIgnoringInteractionEvents()
             })
-            
-            
-            // Parar animacion y volver a permitir interacción
-            UIApplication.sharedApplication().endIgnoringInteractionEvents()
-            indicador.stopAnimating()
-            
             
             
         }
         else
         {
-            
-            // Pulsa el botón editar
+            // Pulsa el botón "Edit"
             // Oculta el mapa y muestra el botón para llamar a la pantalla de localización
             
             obtenerLocalizacion.hidden = false
             mapa.hidden = true
+            mensajeFotos.hidden = true
+            mensajeMapa.hidden = true
             descripcionTextView.editable = true
             editarSitio.title = "Done"
             isEditingMode = true
             
-         
-
-            
-            
-            
+            // Sino hay imágenes muestra el botón de añadir fotos
+            if arrayImagenes.count==0{
+                mensajeFotos.hidden=true
+                addFotos.hidden=false
+            }
+            else
+            {
+                mensajeFotos.hidden=true
+                addFotos.hidden=true
+            }
         }
     }
     
-  
+
+    
+    
+    
+    /*
+    Es un unwind segue que se llama cuando en la pantalla “MapaSitioViewController” 
+     se pulsa el botón “save”. Obtiene el parámetro “location” con la ubicación obtenida en 
+     la pantalla y actualiza la variable “localizaSitio” que posteriormente cuando se pulse el 
+     botón “save” en la pantalla actual se guardará en la base de datos.
+     */
     @IBAction func saveLocalizacion(segue:UIStoryboardSegue) {
-        
         
         if let MapaSitioViewController = segue.sourceViewController as? MapaSitioViewController {
             
@@ -247,88 +307,116 @@ class EditarSitioTableViewController: UITableViewController, UICollectionViewDel
                 localizaSitio = GeoPoint(point: GEO_POINT(latitude: location.coordinate.latitude,longitude: location.coordinate.longitude), categories: nil)
                 print("localización guardada: \(location.coordinate.latitude) \(location.coordinate.longitude)")
                 
+                // borra el sitio marcado en el mapa
+                let allAnnotations = self.mapa.annotations
+                self.mapa.removeAnnotations(allAnnotations)
+                // convierte un GeoPoint a formato CLLocation
+                let location = CLLocationCoordinate2D(
+                    latitude: CLLocationDegrees(localizaSitio!.latitude),
+                    longitude: CLLocationDegrees(localizaSitio!.longitude))
+                // posiciona la vista del mapa a la región de las coordenadas actualizadas del sitio
+                let span = MKCoordinateSpan(latitudeDelta: 0.005,longitudeDelta: 0.005)
+                let region = MKCoordinateRegion(center: location, span: span)
+                mapa.setRegion(region, animated: true)
+                // muestra la posición actualizada en el mapa con el nombre del sitio
+                let nota = MKPointAnnotation()
+                nota.coordinate = location
+                nota.title = sitio?.nombre
+                mapa.addAnnotation(nota)
+                mapa.showsUserLocation = true
+                
+
+                
             }
         }
         
     }
 
     
+
+    
+    
+    
+    
+    
+    /*
+     Si se pulsa el botón borrar (imagen de una papelera) se muestra un mensaje de confirmación al usuario. 
+     Si el usuario confirma el borrado se realiza un unwind manual a “deleteEditarSitio” de la pantalla 
+     “MisSitiosTableViewController”. Si el usuario no confirma la acción se mantiene en la pantalla de detalle del sitio.
+    */
     @IBAction func borrarButton(sender: UIBarButtonItem) {
         
-        
+        // Muestra un mensaje de confirmación
         let refreshAlert = UIAlertController(title: "Delete", message: "Se borrarán todos los datos del Sitio", preferredStyle: UIAlertControllerStyle.Alert)
         
         refreshAlert.addAction(UIAlertAction(title: "OK", style: .Default, handler: { (action: UIAlertAction!) in
             
+            // realiza un segue a "deleteEditarSitio" pantall MisSitios
             self.performSegueWithIdentifier("deleteEditarSitio", sender: self)
 
             }))
             
-            refreshAlert.addAction(UIAlertAction(title: "CANCEL", style: .Cancel, handler: { (action: UIAlertAction!) in
-                
-                
-                
-                
+        refreshAlert.addAction(UIAlertAction(title: "CANCEL", style: .Cancel, handler: { (action: UIAlertAction!) in
             }))
-            
-            presentViewController(refreshAlert, animated: true, completion: nil)
-
-        
-        
+        presentViewController(refreshAlert, animated: true, completion: nil)
     }
    
     
-   func collectionView(collectionView: UICollectionView,
-                        numberOfItemsInSection section: Int) -> Int {
-        
-        return fotosArray.count
+    
+    
+    
+    
+    
+    
+   /*
+     Devuelve el número de imágenes del sitio.
+   */
+   func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+  
+        return imagenesArray.count
     }
     
-    func collectionView(collectionView: UICollectionView,
-                        cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
+    
+    
+    
+    
+    /*
+    Carga las imágenes del sitio en la celda prototipo. Lee las imágenes del array de “UIImage”.
+    */
+    func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
         
         let cell = collectionView.dequeueReusableCellWithReuseIdentifier("cell", forIndexPath: indexPath) as! CellFotoCollectionViewCell
-        
-        let imagen = fotosArray[indexPath.row]
-        
-        if let url  = NSURL(string: imagen),
-            data = NSData(contentsOfURL: url)
-        {
-            cell.foto.image = UIImage(data: data)
-        }
-        
-               
+        cell.foto.image = imagenesArray[indexPath.row]
         return cell
     }
+
     
+    
+    
+    
+    /*
+     Asigna a la variable celdaSeleccionada el índice de la imagen seleccionada. 
+     Posteriormente se utiliza para mostrarla en la pantalla de “FotoViewController”.
+    */
     func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
         
-        
         celdaSeleccionada = indexPath.row
-        
-        //let image = self.imagenesArray[indexPath.row]
-        
-                   // myVC.foto = UIImageView(image: image)
-                   // myVC.foto.image = image
-                  //  self.presentViewController(myVC, animated: true, completion: nil)
-        
     }
+
     
+    
+    /*
+     Pasa parámetros a otros view controllers. Se utiliza cuando se pulsa la primera fila, en la colección de imágenes.
+     -	“verDetalleFoto”: Pasa el parámetro imagen, si no hay imágenes le pasa solo el id del sitio para añadir nuevas fotos.
+    */
     // Pasa parámetros a otros View Controllers
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         
         if segue.identifier == "verDetalleFoto" {
-            
-            //let cell = sender as! UITableViewCell // or your cell subclass
-            //let indexPath = self.tableView.indexPathForCell(cell)
-            
-            // pasa como parámetro el identificador del nuevo sitio a la pantalla de fotos
-            
-            
+ 
+            // pasa como parámetro los datos de la imagen seleccionada
             let nav = segue.destinationViewController as! FotoViewController
-            //let addEventViewController = nav.topViewController as! FotoViewController
             
-           // let image = self.imagenesArray[celdaSeleccionada]
             if (!self.arrayImagenes.isEmpty) {
                 nav.imagen = Imagen()
                 nav.imagen = self.arrayImagenes[celdaSeleccionada]
@@ -337,57 +425,66 @@ class EditarSitioTableViewController: UITableViewController, UICollectionViewDel
                 // no tiene imágenes pero se le pasa el id del sitio para añadir fotos
                 nav.imagen = Imagen()
                 nav.imagen?.idSitio = self.sitio?.nombre
-                
             }
-            
-        }
-        
-    }
+         }
+     }
 
+    
+    
+    
+    /*
+    Unwind segue que se ejecuta cuando en la pantalla “FotoViewController” se pulsa el botón “borrar”.  
+     Elimina el elemento de los arrays y actualiza el collection view.
+    */
     @IBAction func borrarFotoSegue(segue:UIStoryboardSegue) {
         
-        
         // Se ha borrado una imagen se actualiza el collectionView
-      
-        
-        fotosArray.removeAtIndex(celdaSeleccionada)
+        arrayImagenes.removeAtIndex(celdaSeleccionada)
+        imagenesArray.removeAtIndex(celdaSeleccionada)
         coleccionFotos.reloadData()
-        
-        
-        
-        
+        if imagenesArray.count==0 {
+            coleccionFotos.hidden=true
+            mensajeFotos.hidden=false
+        }
+        else{
+            coleccionFotos.hidden=false
+            mensajeFotos.hidden=true
+        }
     }
     
-    
+
+    /*
+    Cuando se pulsa el botón “refresco” se borran todas las imágenes actuales 
+     de los arrays y se vuelven a leer todas las imágenes del sitio.
+    */
     @IBAction func refrescarFotos(sender: UIBarButtonItem) {
         
+        // Variable para mostrar el indicador de actividad mientras se está registrando el usuario
+        let indicador = UIActivityIndicatorView(activityIndicatorStyle: .Gray)
         
-        //Mostrar indicador de actividad
-   /*     UIApplication.sharedApplication().beginIgnoringInteractionEvents()
+        
         //indicador.activityIndicatorViewStyle  = UIActivityIndicatorViewStyle.Gray;
-        //indicador.center = self.view.center;
-        //self.view.addSubview(indicador)
-        //self.view.bringSubviewToFront(indicador)
-        indicador.hidden=false
-        indicador.startAnimating()
-        UIApplication.sharedApplication().beginIgnoringInteractionEvents()
-        print(indicador)*/
+        indicador.center = self.view.center;
+        indicador.hidesWhenStopped=true
+        
+        self.view.addSubview(indicador)
+        self.view.bringSubviewToFront(indicador)
+        
         
         // Borra las fotos del array de fotos
-        
-        self.fotosArray.removeAll()
         self.arrayImagenes.removeAll()
         self.imagenesArray.removeAll()
         
+        indicador.startAnimating()
+        dispatch_async(dispatch_get_main_queue(), { () -> Void in
         
+      
         // leer todas las fotos del sitio
-        
         let backendless = Backendless.sharedInstance()
         
-        
-        // Prepara una consulta a la tabla sitio filtrando solo los sitios del usuario
+        // Prepara una consulta a la tabla sitio filtrando solo las imágenes del sitio del usuario
         let query = BackendlessDataQuery()
-        let whereClause = "idUsuario = '\(sitio!.usuario_idUsuario!)' and idSitio = '\(sitio!.nombre!)'"
+        let whereClause = "idUsuario = '\(self.sitio!.usuario_idUsuario!)' and idSitio = '\(self.sitio!.nombre!)'"
         query.whereClause = whereClause
         
         Types.tryblock({ () -> Void in
@@ -399,24 +496,19 @@ class EditarSitioTableViewController: UITableViewController, UICollectionViewDel
             if currentPage.count==0 {
                 
                 //Si no hay imagenes asociadas al sitio se oculta el CollectionView y se muestra
-                // un botón para añadir fotos
-                
+                // un mensaje
                 self.coleccionFotos.hidden=true
-                self.addFotos.hidden=false
-                
-                
-                
+                self.addFotos.hidden=true
+                self.mensajeFotos.hidden=false
             }
             else
             {
-                
                 self.coleccionFotos.hidden=false
                 self.addFotos.hidden=true
-                
+                self.mensajeFotos.hidden=true
                 
                 // Carga la información de las imágenes en un array
                 for imagen in currentPage as! [Imagen] {
-                    self.fotosArray.append(imagen.imagen!)
                     self.arrayImagenes.append(imagen)
                     if let url  = NSURL(string: imagen.imagen!),
                         data = NSData(contentsOfURL: url)
@@ -429,81 +521,31 @@ class EditarSitioTableViewController: UITableViewController, UICollectionViewDel
                        catchblock: { (exception) -> Void in
                         print("Server reported an error: \(exception)")
                         print (whereClause)
+                        let mensaje = exception.message
+                        let alertController = UIAlertController(title: "Error", message: mensaje, preferredStyle: .Alert)
+                        let OKAction = UIAlertAction(title: "OK", style: .Default){ (action) in }
+                        alertController.addAction(OKAction)
+                        self.presentViewController(alertController, animated: true, completion: nil)
+
         })
-        
-
-        
-        
-        
-        
-        
-        coleccionFotos.reloadData()
-        
-        // Parar animacion y volver a permitir interacción
-       /* UIApplication.sharedApplication().endIgnoringInteractionEvents()
-        indicador.stopAnimating()
-        indicador.hidden=true*/
+      
+            
+        // carga las imágenes en el collection view
+        self.coleccionFotos.reloadData()
+            indicador.stopAnimating()
+            
+        })
     }
     
-    
-    
-    
-    
-    
-    
-    /*
-    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("reuseIdentifier", forIndexPath: indexPath)
-
-        // Configure the cell...
-
-        return cell
-    }
-    */
-
-    /*
-    // Override to support conditional editing of the table view.
-    override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        // Return false if you do not want the specified item to be editable.
+   
+    // Cuando se pulsa la tecla enter en el campo descripción se esconde el teclado
+    func textView(textView: UITextView, shouldChangeTextInRange range: NSRange, replacementText text: String) -> Bool {
+        if text == "\n"  // Recognizes enter key in keyboard
+        {
+            textView.resignFirstResponder()
+            return false
+        }
         return true
     }
-    */
-
-    /*
-    // Override to support editing the table view.
-    override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
-        if editingStyle == .Delete {
-            // Delete the row from the data source
-            tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
-        } else if editingStyle == .Insert {
-            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-        }    
-    }
-    */
-
-    /*
-    // Override to support rearranging the table view.
-    override func tableView(tableView: UITableView, moveRowAtIndexPath fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath) {
-
-    }
-    */
-
-    /*
-    // Override to support conditional rearranging of the table view.
-    override func tableView(tableView: UITableView, canMoveRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        // Return false if you do not want the item to be re-orderable.
-        return true
-    }
-    */
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
-    }
-    */
 
 }
