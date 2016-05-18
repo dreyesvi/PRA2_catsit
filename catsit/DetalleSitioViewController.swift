@@ -25,16 +25,14 @@ class DetalleSitioViewController: UITableViewController, UITextFieldDelegate, UI
     var sitio: Sitio?
     // variable para guardar los datos de localizacion
     var localizaSitio: GeoPoint?
+    // variable para guardar si se  ha podido guardar el sitio correctamente
+    var errorAlGuardar: Bool = false
+    // mensaje de error
+    var mensajeError: String?
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        // Uncomment the following line to preserve selection between presentations
-        // self.clearsSelectionOnViewWillAppear = false
-
-        // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-        // self.navigationItem.rightBarButtonItem = self.editButtonItem()
     }
 
     override func didReceiveMemoryWarning() {
@@ -69,139 +67,13 @@ class DetalleSitioViewController: UITableViewController, UITextFieldDelegate, UI
     }
     
     
-    
-    
-    
-    
-    
-    
-    
+    /*
+       Se utiliza para pasar parámetros a otros View Controllers
+    */
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         
-        
-        
-        if segue.identifier == "saveDetalleSitio" {
-            
-            
-
-            
-                    let backendless = Backendless.sharedInstance()
-            
-                    let user = backendless.userService.currentUser
-            
-           
-                    // Obtiene el valor del campo idusuario del usuario actual en un string
-                    let idUsuario = user.getProperty("idusuario") as! String
-            
-                    //sitio = Sitio(idSitio: idSitio, nombre: nombreTextField.text!, descripcion: descripcionTextView.text, idUsuario: idUsuario)
-                    self.sitio = Sitio()
-                    self.sitio?.nombre=self.nombreTextField.text
-                    self.sitio?.descripcion=self.descripcionTextView.text
-                    if self.localizaSitio != nil{
-                            self.sitio?.localizacion=self.localizaSitio
-                        }
-                        else{
-                            self.sitio?.localizacion = GeoPoint()
-                    }
- 
-                    self.sitio?.usuario_idUsuario=idUsuario
-            
-                    let dataStore = backendless.data.of(Sitio.ofClass());
-                    Types.tryblock({ () -> Void in
-            
-                            let result = dataStore.save(self.sitio) as? Sitio
-                            print ("id objecto: \(result!.objectId)")
-                            print("Sitio guardado con id: \(self.nombreTextField.text!)")
-                            },
-                                catchblock: { (exception) -> Void in
-                                    print("Server reported an error: \(exception)")
-                                    print("id sitio: \(self.nombreTextField.text!)")
-                                    print("id usuario: \(idUsuario)")
-                            
-                        })
-         
-          
-        }
-        
-        
-        // Pulsa el botón cancel, se cancela el alta del sitio por lo que se borran las fotos y
-        // localizaciones relacionadas del sitio
-        
-        if segue.identifier == "cancelDetalleSitio" {
-            
-            //Mostrar indicador de actividad
-            let indicador = UIActivityIndicatorView(activityIndicatorStyle: .Gray)
-            indicador.center = self.view.center;
-            self.view.addSubview(indicador)
-            self.view.bringSubviewToFront(indicador)
-            indicador.hidden=false
-            indicador.hidesWhenStopped=true
-            indicador.startAnimating()
-            
-            dispatch_async(dispatch_get_main_queue(), { () -> Void in
-            
-                    let backendless = Backendless.sharedInstance()
-            
-                    let user = backendless.userService.currentUser
-            
-                    var error: Fault?
-            
-                    // Path donde se guardan las fotos en backendless
-                    let path = "FotosSitios/"
-            
-                    // Obtiene el valor del campo idusuario del usuario actual en un string
-                    let idUsuario = user.getProperty("idusuario") as! String
-            
-                    // Prepara una consulta a la tabla imagen filtrando solo las fotos del nuevo sitio del usuario
-                    let query = BackendlessDataQuery()
-                    let whereClause = "idUsuario = '\(idUsuario)' and idSitio='\(self.nombreTextField.text!)'"
-                    query.whereClause = whereClause
-            
-                    let dataStore = backendless.data.of(Imagen.ofClass());
-
-                    Types.tryblock({ () -> Void in
-                
-                            // realiza la consulta a la bb.dd y obtiene los resultados
-                            let imagenes = backendless.persistenceService.of(Imagen.ofClass()).find(query)
-                            let currentPage = imagenes.getCurrentPage()
-                
-                            // recorre las imágenes y borra una a una
-                            for img in currentPage as! [Imagen] {
-                    
-                                    // Borrado del fichero de imagen
-                    
-                                    var nomfichero = String(img.idImagen) + ".jpg"
-                    
-                                    nomfichero = path + nomfichero
-                    
-                                    let result = backendless.fileService.remove(nomfichero)
-                                    print("Filchero borrado: \(nomfichero) result= \(result)")
-                    
-                                    // Borrado de la imagen de la bb.dd.
-                                    let resultbbdd = dataStore.remove(img, fault: &error)
-                                    if error == nil {
-                                            print("Imagen borrada bb.dd: \(img.idImagen) codigo: \(resultbbdd)")
-                                        }
-                                        else {
-                                            print("Server reported an error: \(error)")
-                                    }
-                    
-                            }
-            
-                
-                            },
-                           
-                                catchblock: { (exception) -> Void in
-                                        print("Server reported an error: \(exception as! Fault)")
-                            }
-                    )
-            
-            })
-            
-            indicador.stopAnimating()
-        }
-        
-
+      // Pasa parámetros a la pantalla HacerFotoViewController para mostrar
+      // el nombre del sitio
      if segue.identifier == "segueFotos" {
 
          // pasa como parámetro el identificador del nuevo sitio a la pantalla de fotos 
@@ -219,6 +91,10 @@ class DetalleSitioViewController: UITableViewController, UITextFieldDelegate, UI
     }
     
 
+    /*
+       Unwind segue que se llama cuando se pulsa el botón "Save" de la pantalla MapaSitioViewController
+       Actualiza la localización del sitio.
+     */
     @IBAction func saveLocalizacion(segue:UIStoryboardSegue) {
         
         
@@ -232,18 +108,20 @@ class DetalleSitioViewController: UITableViewController, UITextFieldDelegate, UI
                 
             }
         }
-        
-        }
+    }
+
 
     
-    
+    /*
+     Al presionar el botón de añadir fotos se valida que el nombre del sitio esté informado
+     porque es el id que se utiliza para guardar las fotos. Sino está informado se muestra 
+     un error.
+    */
     @IBAction func addFotos(sender: UIButton) {
         
         // Verificar campo nombre
-        
         if nombreTextField.text == ""{
-            
-            
+
             nombreTextField.backgroundColor = UIColor.redColor()
             
             let alertController = UIAlertController(title: "Error", message: "Introduzca nombre del sitio", preferredStyle: .Alert)
@@ -258,6 +136,115 @@ class DetalleSitioViewController: UITableViewController, UITextFieldDelegate, UI
             nombreTextField.backgroundColor = UIColor.whiteColor()
         }
 
+    }
+
+    
+    
+    
+    
+    /*
+     Por coherencia con el botón añadir fotos al presionar el botón de añadir ubicación se valida 
+     que el nombre del sitio esté informado porque es el id que se utiliza para guardar las fotos.
+     Sino está informado se muestra un error. Realmente el nombre del sitio no se utiliza en el 
+     mapa por lo que se podría eliminar esta validación
+     */
+    @IBAction func addUbicacion(sender: UIButton) {
+        
+        // Verificar campo nombre
+        
+        if nombreTextField.text == ""{
+
+            nombreTextField.backgroundColor = UIColor.redColor()
+            
+            let alertController = UIAlertController(title: "Error", message: "Introduzca nombre del sitio", preferredStyle: .Alert)
+            let OKAction = UIAlertAction(title: "OK", style: .Default){ (action) in }
+            alertController.addAction(OKAction)
+            self.presentViewController(alertController, animated: true, completion: nil)
+        }
+        else
+        {
+            nombreTextField.backgroundColor = UIColor.whiteColor()
+        }
+    }
+    
+
+    
+    
+    /*
+      Cuando se pulsa el botón guardar. Guarda los datos del nuevo sitio.
+     Las fotos ya se han guardado conforme se han añadido al sitio.
+     Se guarda en modo asincrono, si es correcto se hace un segue a la pantalla
+     mis sitios para actualizar el table view controller.
+    */
+
+    @IBAction func guardarSitio(sender: UIBarButtonItem) {
+        
+        
+        
+        //Mostrar indicador de actividad
+        let indicador = UIActivityIndicatorView(activityIndicatorStyle: .Gray)
+        indicador.center = self.view.center;
+        self.view.addSubview(indicador)
+        self.view.bringSubviewToFront(indicador)
+        indicador.hidden=false
+        indicador.hidesWhenStopped=true
+        indicador.startAnimating()
+        
+        dispatch_async(dispatch_get_main_queue(), {
+
+            let backendless = Backendless.sharedInstance()
+            
+            let user = backendless.userService.currentUser
+            
+            
+            // Obtiene el valor del campo idusuario del usuario actual en un string
+            let idUsuario = user.getProperty("idusuario") as! String
+            
+            //sitio = Sitio(idSitio: idSitio, nombre: nombreTextField.text!, descripcion: descripcionTextView.text, idUsuario: idUsuario)
+            self.sitio = Sitio()
+            self.sitio?.nombre=self.nombreTextField.text
+            self.sitio?.descripcion=self.descripcionTextView.text
+            if self.localizaSitio != nil{
+                self.sitio?.localizacion=self.localizaSitio
+            }
+            else{
+                self.sitio?.localizacion = GeoPoint()
+            }
+            
+            self.sitio?.usuario_idUsuario=idUsuario
+            
+            let dataStore = backendless.data.of(Sitio.ofClass());
+            Types.tryblock({ () -> Void in
+                
+                let result = dataStore.save(self.sitio) as? Sitio
+                print ("id objecto: \(result!.objectId)")
+                print("Sitio guardado con id: \(self.nombreTextField.text!)")
+                self.errorAlGuardar = false
+                // Actualiza el id del objeto guardado en la base de datos
+                self.sitio?.objectId = result!.objectId
+                
+                // realiza un segue a "saveEditarSitio" pantall MisSitios
+                self.performSegueWithIdentifier("saveDetalleSitio", sender: self)
+                
+                },
+                           catchblock: { (exception) -> Void in
+                            print("Server reported an error: \(exception)")
+                            print("id sitio: \(self.nombreTextField.text!)")
+                            print("id usuario: \(idUsuario)")
+                            
+                            self.errorAlGuardar = true
+                            
+                             let alertController = UIAlertController(title: "Error", message: exception.message, preferredStyle: .Alert)
+                             let OKAction = UIAlertAction(title: "OK", style: .Default){ (action) in }
+                             alertController.addAction(OKAction)
+                             self.presentViewController(alertController, animated: true, completion: nil)
+                            
+            })
+            // Para el indicador de actividad
+            indicador.stopAnimating()
+        })
+        
+        
         
         
     }
@@ -266,91 +253,116 @@ class DetalleSitioViewController: UITableViewController, UITextFieldDelegate, UI
     
     
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    // MARK: - Table view data source
+    // Pulsa el botón cancel, se cancela el alta del sitio por lo que se borran las fotos
+    // del sitio
+    @IBAction func cancelSitio(sender: UIBarButtonItem) {
+        
+        
+        
+        //Mostrar indicador de actividad
+        let indicador = UIActivityIndicatorView(activityIndicatorStyle: .Gray)
+        indicador.center = self.view.center;
+        self.view.addSubview(indicador)
+        self.view.bringSubviewToFront(indicador)
+        indicador.hidden=false
+        indicador.hidesWhenStopped=true
+        indicador.startAnimating()
+        
+        dispatch_async(dispatch_get_main_queue(), {
+            
+            let backendless = Backendless.sharedInstance()
+            
+            let user = backendless.userService.currentUser
+            
+            var error: Fault?
+            
+            
+            
+            // Path donde se guardan las fotos en backendless
+            let path = "FotosSitios/"
+            
+            // Obtiene el valor del campo idusuario del usuario actual en un string
+            let idUsuario = user.getProperty("idusuario") as! String
+            
+            // Prepara una consulta a la tabla imagen filtrando solo las fotos del nuevo sitio del usuario
+            let query = BackendlessDataQuery()
+            let whereClause = "idUsuario = '\(idUsuario)' and idSitio='\(self.nombreTextField.text!)'"
+            query.whereClause = whereClause
+            
+            let dataStore = backendless.data.of(Imagen.ofClass());
+            
+            Types.tryblock({ () -> Void in
+                
+                // realiza la consulta a la bb.dd y obtiene los resultados
+                let imagenes = backendless.persistenceService.of(Imagen.ofClass()).find(query)
+                let currentPage = imagenes.getCurrentPage()
+                
+                if currentPage.count==0
+                {
+                        // realiza un segue a "cancelEditarSitio" pantall MisSitios
+                        self.performSegueWithIdentifier("cancelToSitioViewController", sender: self)
+                    
+                    
+                }
+                else
+                {
+                    
+                
+                
+                // recorre las imágenes y borra una a una
+                for img in currentPage as! [Imagen] {
+                    
+                    // Borrado del fichero de imagen
+                    
+                    var nomfichero = String(img.idImagen) + ".jpg"
+                    
+                    nomfichero = path + nomfichero
+                    
+                    let result = backendless.fileService.remove(nomfichero)
+                    print("Filchero borrado: \(nomfichero) result= \(result)")
+                    
+                    // Borrado de la imagen de la bb.dd.
+                    let resultbbdd = dataStore.remove(img, fault: &error)
+                    if error == nil {
+                        print("Imagen borrada bb.dd: \(img.idImagen) codigo: \(resultbbdd)")
 
- /*   override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
-        // #warning Incomplete implementation, return the number of sections
-        return 0
+                    }
+                    else {
+                        print("Server reported an error: \(error)")
+                        
+                        self.errorAlGuardar = true
+                    }
+                }
+                    if self.errorAlGuardar==true
+                    {
+                        let alertController = UIAlertController(title: "Error", message: "No se han podido borrar fotos temporales", preferredStyle: .Alert)
+                        let OKAction = UIAlertAction(title: "OK", style: .Default){ (action) in }
+                        alertController.addAction(OKAction)
+                        self.presentViewController(alertController, animated: true, completion: nil)
+                    }
+                    else{
+                    // realiza un segue a "cancelEditarSitio" pantall MisSitios
+                    self.performSegueWithIdentifier("cancelToSitioViewController", sender: self)
+                    }
+                }
+                
+                },
+                
+                catchblock: { (exception) -> Void in
+                    print("Server reported an error: \(exception as! Fault)")
+                    self.errorAlGuardar = true
+                    
+                    let alertController = UIAlertController(title: "Error", message: exception.message, preferredStyle: .Alert)
+                    let OKAction = UIAlertAction(title: "OK", style: .Default){ (action) in }
+                    alertController.addAction(OKAction)
+                    self.presentViewController(alertController, animated: true, completion: nil)
+                }
+            )
+            // para el indicador de actividad
+            indicador.stopAnimating()
+        })
     }
-
-    override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        // #warning Incomplete implementation, return the number of rows
-        return 0
-    }
-
-    */
     
     
-    
-    
-    
-    
-    
-    
-    
-    
-    /*
-    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("reuseIdentifier", forIndexPath: indexPath)
-
-        // Configure the cell...
-
-        return cell
-    }
-    */
-
-    /*
-    // Override to support conditional editing of the table view.
-    override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        // Return false if you do not want the specified item to be editable.
-        return true
-    }
-    */
-
-    /*
-    // Override to support editing the table view.
-    override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
-        if editingStyle == .Delete {
-            // Delete the row from the data source
-            tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
-        } else if editingStyle == .Insert {
-            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-        }    
-    }
-    */
-
-    /*
-    // Override to support rearranging the table view.
-    override func tableView(tableView: UITableView, moveRowAtIndexPath fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath) {
-
-    }
-    */
-
-    /*
-    // Override to support conditional rearranging of the table view.
-    override func tableView(tableView: UITableView, canMoveRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        // Return false if you do not want the item to be re-orderable.
-        return true
-    }
-    */
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
-    }
-    */
 
 }

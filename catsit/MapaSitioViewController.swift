@@ -38,7 +38,6 @@ class MapaSitioViewController: UIViewController, CLLocationManagerDelegate {
         //Configura el indicador de actividad
         indicador.activityIndicatorViewStyle  = UIActivityIndicatorViewStyle.Gray;
         indicador.center = view.center;
-        //indicador.startAnimating()
         view.addSubview(indicador)
         
         // Verifica si el usuario tiene permisos para acceder a la localización
@@ -62,19 +61,18 @@ class MapaSitioViewController: UIViewController, CLLocationManagerDelegate {
             startLocationManager()
             mapa.showsUserLocation=true
             
-            
            // define el gesto de pulsado largo en el mapa 
            let uilgr = UILongPressGestureRecognizer(target: self, action: #selector(MapaSitioViewController.addAnnotation(_:)))
            uilgr.minimumPressDuration = 2.0
            mapa.addGestureRecognizer(uilgr)
         }
-        
-     
-        
-    
     }
 
-    
+
+    /*
+       se ejecuta en caso de que se pulse 2 segundo en la pantalla, cambia las coordenadas
+       del sitio y actualiza el mapa.
+    */
     func addAnnotation(gestureRecognizer:UIGestureRecognizer){
         if gestureRecognizer.state == UIGestureRecognizerState.Began{
             
@@ -109,7 +107,6 @@ class MapaSitioViewController: UIViewController, CLLocationManagerDelegate {
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
     }
     
 

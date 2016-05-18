@@ -149,9 +149,10 @@ class FotoViewController: UIViewController {
 // ViewController HacerFotoViewController
 
 extension FotoViewController: VCdevolverFotoDelegate {
-    func actualizarFoto (data: UIImage) {
+    func actualizarFoto (data: UIImage, imagen: Imagen) {
         
         self.foto.image = data
+        self.imagen = imagen
         
     }
 }

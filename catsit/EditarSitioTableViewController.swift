@@ -40,7 +40,8 @@ class EditarSitioTableViewController: UITableViewController, UICollectionViewDel
     // posición de la imagen seleccionada
     var celdaSeleccionada = 0
     
-    
+    // variable para guardar si se detecta un error
+    var errorDetectado: Bool = false
     
     
     
@@ -142,19 +143,12 @@ class EditarSitioTableViewController: UITableViewController, UICollectionViewDel
                             self.presentViewController(alertController, animated: true, completion: nil)
                    
                     })
-        
-        
-        
         }
-
-    
-    
     
     
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
     }
 
     
@@ -194,8 +188,7 @@ class EditarSitioTableViewController: UITableViewController, UICollectionViewDel
         {
             // Pulsa botón "Done" se muestra el
             // mapa y se oculta el boton
-            obtenerLocalizacion.hidden = true
-            mapa.hidden = false
+            
             descripcionTextView.editable = false
             editarSitio.title = "Edit"
             isEditingMode = false
@@ -228,35 +221,58 @@ class EditarSitioTableViewController: UITableViewController, UICollectionViewDel
             // Actualiza la localización del sitio
             if localizaSitio != nil{
                 sitio?.localizacion=localizaSitio
+               }
+            
+            // muestra el mapa si hay localización
+            if sitio?.localizacion != nil
+            {
+                if (sitio!.localizacion!.longitude != 0 && sitio!.localizacion!.latitude != 0)
+                {
+                    obtenerLocalizacion.hidden = true
+                    mensajeMapa.hidden=true
+                    mapa.hidden = false
+                }
+                else
+                {
+                    mapa.hidden = true
+                    mensajeMapa.hidden = false
+                    obtenerLocalizacion.hidden = true
+                }
+            }
+            else
+            {
+                mapa.hidden = true
+                mensajeMapa.hidden = false
+                obtenerLocalizacion.hidden = true
             }
             indicador.startAnimating()
-            dispatch_async(dispatch_get_main_queue(), { () -> Void in
+            dispatch_async(dispatch_get_main_queue(), {
                 
                 // conecta con la instancia actual
                 let backendless = Backendless.sharedInstance()
-                
-            // Actualiza el sitio en la bb.dd.
-            let dataStore = backendless.data.of(Sitio.ofClass());
-            Types.tryblock({ () -> Void in
-                
-                let result = dataStore.save(self.sitio) as? Sitio
-                print ("id objecto: \(result!.objectId)")
-                print("Sitio actualiado  id: \(self.sitio?.nombre)")
-                },
-                           catchblock: { (exception) -> Void in
-                            print("Server reported an error: \(exception)")
-                            print("id sitio: \(self.sitio?.nombre)")
-                            print("id usuario: \(self.sitio?.usuario_idUsuario)")
-                            let mensaje = exception.message
-                            let alertController = UIAlertController(title: "Error", message: mensaje, preferredStyle: .Alert)
-                            let OKAction = UIAlertAction(title: "OK", style: .Default){ (action) in }
-                            alertController.addAction(OKAction)
-                            self.presentViewController(alertController, animated: true, completion: nil)
-                })
-                
-                indicador.stopAnimating()
-                // Parar animacion y volver a permitir interacción
-                UIApplication.sharedApplication().endIgnoringInteractionEvents()
+                    
+                // Actualiza el sitio en la bb.dd.
+                let dataStore = backendless.data.of(Sitio.ofClass());
+                Types.tryblock({ () -> Void in
+                    
+                    let result = dataStore.save(self.sitio) as? Sitio
+                    print ("id objecto: \(result!.objectId)")
+                    print("Sitio actualiado  id: \(self.sitio?.nombre)")
+                    },
+                               catchblock: { (exception) -> Void in
+                                print("Server reported an error: \(exception)")
+                                print("id sitio: \(self.sitio?.nombre)")
+                                print("id usuario: \(self.sitio?.usuario_idUsuario)")
+                                let mensaje = exception.message
+                                let alertController = UIAlertController(title: "Error", message: mensaje, preferredStyle: .Alert)
+                                let OKAction = UIAlertAction(title: "OK", style: .Default){ (action) in }
+                                alertController.addAction(OKAction)
+                                self.presentViewController(alertController, animated: true, completion: nil)
+                    })
+                    
+                    // Parar animacion y volver a permitir interacción
+                    indicador.stopAnimating()
+                    UIApplication.sharedApplication().endIgnoringInteractionEvents()
             })
             
             
@@ -343,6 +359,11 @@ class EditarSitioTableViewController: UITableViewController, UICollectionViewDel
      Si se pulsa el botón borrar (imagen de una papelera) se muestra un mensaje de confirmación al usuario. 
      Si el usuario confirma el borrado se realiza un unwind manual a “deleteEditarSitio” de la pantalla 
      “MisSitiosTableViewController”. Si el usuario no confirma la acción se mantiene en la pantalla de detalle del sitio.
+     
+     -	Consulta todas las imágenes de un sitio de un usuario.
+     -	Borra cada fichero de imagen y cada fila de la bb.dd de la imagen.
+     -	Borra el sitio de la bb.dd.
+ 
     */
     @IBAction func borrarButton(sender: UIBarButtonItem) {
         
@@ -351,14 +372,137 @@ class EditarSitioTableViewController: UITableViewController, UICollectionViewDel
         
         refreshAlert.addAction(UIAlertAction(title: "OK", style: .Default, handler: { (action: UIAlertAction!) in
             
-            // realiza un segue a "deleteEditarSitio" pantall MisSitios
-            self.performSegueWithIdentifier("deleteEditarSitio", sender: self)
+            
+            var mensaje: String = " "
+            
+            //Mostrar indicador de actividad
+            let indicador = UIActivityIndicatorView(activityIndicatorStyle: .Gray)
+            indicador.center = self.view.center;
+            self.view.addSubview(indicador)
+            self.view.bringSubviewToFront(indicador)
+            indicador.hidden=false
+            indicador.hidesWhenStopped=true
+            indicador.startAnimating()
+            
+            dispatch_async(dispatch_get_main_queue(), {
+                
+                // Conecta con la instancia actual de backendless
+                let backendless = Backendless.sharedInstance()
+                
+                //Usuario actual de la instancia de backendless
+                let user = backendless.userService.currentUser
+                
+                // variable para capturar el código de error.
+                var error: Fault?
+                
+                // Path donde se guardan las fotos en backendless
+                let path = "FotosSitios/"
+                
+                // Obtiene el valor del campo idusuario del usuario actual en un string
+                let idUsuario = user.getProperty("idusuario") as! String
+                
+                // Prepara una consulta a la tabla imagen filtrando solo las fotos del sitio del usuario
+                let query = BackendlessDataQuery()
+                let whereClause = "idUsuario = '\(idUsuario)' and idSitio='\(self.sitio!.nombre!)'"
+                query.whereClause = whereClause
+                
+                // Asocia la tabla de backendless a la clase Imagen
+                let dataStore = backendless.data.of(Imagen.ofClass());
+                
+                Types.tryblock({ () -> Void in
+                    
+                    // realiza la consulta a la bb.dd y obtiene los resultados
+                    let imagenes = backendless.persistenceService.of(Imagen.ofClass()).find(query)
+                    let currentPage = imagenes.getCurrentPage()
+                    
+                    // recorre las imágenes y borra una a una
+                    for img in currentPage as! [Imagen] {
+                        
+                        // Borrado del fichero de imagen (idImagen + extensión jpg)
+                        var nomfichero = String(img.idImagen) + ".jpg"
+                        nomfichero = path + nomfichero
+                        let result = backendless.fileService.remove(nomfichero)
+                        print("Filchero borrado: \(nomfichero) result= \(result)")
+                        
+                        // Borrado de la imagen de la bb.dd.
+                        let resultbbdd = dataStore.remove(img, fault: &error)
+                        if error == nil {
+                            print("Imagen borrada bb.dd: \(img.idImagen) codigo: \(resultbbdd)")
+                        }
+                        else {
+                            print("Server reported an error: \(error)")
+                            self.errorDetectado = true
+                            mensaje = error!.message
+                        }
+                    }
+                    },
+                    catchblock: { (exception) -> Void in
+                        // muestra el mensaje de error en caso de problemas
+                        print("Server reported an error: \(exception as! Fault)")
+                        self.errorDetectado = true
+                        mensaje = exception.message
+                        
+                        
+
+                    }
+                )
+                
+                
+                // Asocia la tabla de backendless a la clase Sitio
+                let dataStoreSitio = backendless.data.of(Sitio.ofClass());
+                Types.tryblock({ () -> Void in
+                    
+                    // Borra el sitio
+                    let resultbbddsitio = dataStoreSitio.remove(self.sitio, fault: &error)
+                    if error == nil {
+                        print("Sitio borrado de la bb.dd: \(self.sitio!.nombre) codigo: \(resultbbddsitio)")
+                    }
+                    else {
+                        print("Server reported an error: \(error)")
+                        self.errorDetectado = true
+                        mensaje = error!.message
+                    }
+                    
+                    },
+                    catchblock: { (exception) -> Void in
+                        // Muestra un mensaje de error en caso de problemas
+                        print("Server reported an error: \(exception as! Fault)")
+                        self.errorDetectado = true
+                        mensaje = exception.message
+                    }
+                )
+                
+                // Parar animacion
+                indicador.stopAnimating()
+               
+                
+                if self.errorDetectado
+                {
+                    let alertController = UIAlertController(title: "Error", message: mensaje, preferredStyle: .Alert)
+                    let OKAction = UIAlertAction(title: "OK", style: .Default){ (action) in }
+                    alertController.addAction(OKAction)
+                    self.presentViewController(alertController, animated: true, completion: nil)
+                }
+               else
+                {
+                /*    let alertController = UIAlertController(title: "Eliminar", message: "Sitio eliminado correctamente", preferredStyle: .Alert)
+                    let OKAction = UIAlertAction(title: "OK", style: .Default){ (action) in }
+                    alertController.addAction(OKAction)
+                    self.presentViewController(alertController, animated: true, completion: nil)
+                 */   
+                    // realiza un segue a "deleteEditarSitio" pantalla MisSitios
+                    self.performSegueWithIdentifier("deleteEditarSitio", sender: self)
+                }
+                
+           })
+
 
             }))
-            
+        
         refreshAlert.addAction(UIAlertAction(title: "CANCEL", style: .Cancel, handler: { (action: UIAlertAction!) in
             }))
         presentViewController(refreshAlert, animated: true, completion: nil)
+        
     }
    
     
@@ -385,8 +529,25 @@ class EditarSitioTableViewController: UITableViewController, UICollectionViewDel
     */
     func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
         
+        //Mostrar indicador de actividad
+        let indicador = UIActivityIndicatorView(activityIndicatorStyle: .Gray)
+        indicador.center = self.view.center;
+        self.view.addSubview(indicador)
+        self.view.bringSubviewToFront(indicador)
+        indicador.hidden=false
+        indicador.hidesWhenStopped=true
+        indicador.startAnimating()
+        
+      
+            
         let cell = collectionView.dequeueReusableCellWithReuseIdentifier("cell", forIndexPath: indexPath) as! CellFotoCollectionViewCell
-        cell.foto.image = imagenesArray[indexPath.row]
+        dispatch_async(dispatch_get_main_queue(), {
+            
+            cell.foto.image = self.imagenesArray[indexPath.row]
+            // Para el indicador de actividad
+            indicador.stopAnimating()
+        })
+        
         return cell
     }
 
@@ -439,9 +600,8 @@ class EditarSitioTableViewController: UITableViewController, UICollectionViewDel
     @IBAction func borrarFotoSegue(segue:UIStoryboardSegue) {
         
         // Se ha borrado una imagen se actualiza el collectionView
-        arrayImagenes.removeAtIndex(celdaSeleccionada)
-        imagenesArray.removeAtIndex(celdaSeleccionada)
-        coleccionFotos.reloadData()
+        self.refrescarFotos(UIBarButtonItem())
+        celdaSeleccionada=0
         if imagenesArray.count==0 {
             coleccionFotos.hidden=true
             mensajeFotos.hidden=false
@@ -452,9 +612,11 @@ class EditarSitioTableViewController: UITableViewController, UICollectionViewDel
         }
     }
     
+    
+    
 
     /*
-    Cuando se pulsa el botón “refresco” se borran todas las imágenes actuales 
+    Cuando se pulsa el botón “refresco” se borran todas las imágenes actuales
      de los arrays y se vuelven a leer todas las imágenes del sitio.
     */
     @IBAction func refrescarFotos(sender: UIBarButtonItem) {
@@ -476,62 +638,62 @@ class EditarSitioTableViewController: UITableViewController, UICollectionViewDel
         self.imagenesArray.removeAll()
         
         indicador.startAnimating()
-        dispatch_async(dispatch_get_main_queue(), { () -> Void in
+        dispatch_async(dispatch_get_main_queue(), {
         
       
-        // leer todas las fotos del sitio
-        let backendless = Backendless.sharedInstance()
-        
-        // Prepara una consulta a la tabla sitio filtrando solo las imágenes del sitio del usuario
-        let query = BackendlessDataQuery()
-        let whereClause = "idUsuario = '\(self.sitio!.usuario_idUsuario!)' and idSitio = '\(self.sitio!.nombre!)'"
-        query.whereClause = whereClause
-        
-        Types.tryblock({ () -> Void in
+            // leer todas las fotos del sitio
+            let backendless = Backendless.sharedInstance()
             
-            // realiza la consulta a la bb.dd y obtiene los resultados
-            let sitios = backendless.persistenceService.of(Imagen.ofClass()).find(query)
-            let currentPage = sitios.getCurrentPage()
+            // Prepara una consulta a la tabla sitio filtrando solo las imágenes del sitio del usuario
+            let query = BackendlessDataQuery()
+            let whereClause = "idUsuario = '\(self.sitio!.usuario_idUsuario!)' and idSitio = '\(self.sitio!.nombre!)'"
+            query.whereClause = whereClause
             
-            if currentPage.count==0 {
+            Types.tryblock({ () -> Void in
                 
-                //Si no hay imagenes asociadas al sitio se oculta el CollectionView y se muestra
-                // un mensaje
-                self.coleccionFotos.hidden=true
-                self.addFotos.hidden=true
-                self.mensajeFotos.hidden=false
-            }
-            else
-            {
-                self.coleccionFotos.hidden=false
-                self.addFotos.hidden=true
-                self.mensajeFotos.hidden=true
+                // realiza la consulta a la bb.dd y obtiene los resultados
+                let sitios = backendless.persistenceService.of(Imagen.ofClass()).find(query)
+                let currentPage = sitios.getCurrentPage()
                 
-                // Carga la información de las imágenes en un array
-                for imagen in currentPage as! [Imagen] {
-                    self.arrayImagenes.append(imagen)
-                    if let url  = NSURL(string: imagen.imagen!),
-                        data = NSData(contentsOfURL: url)
-                    {
-                        self.imagenesArray.append(UIImage(data: data)!)
+                if currentPage.count==0 {
+                    
+                    //Si no hay imagenes asociadas al sitio se oculta el CollectionView y se muestra
+                    // un mensaje
+                    self.coleccionFotos.hidden=true
+                    self.addFotos.hidden=true
+                    self.mensajeFotos.hidden=false
+                }
+                else
+                {
+                    self.coleccionFotos.hidden=false
+                    self.addFotos.hidden=true
+                    self.mensajeFotos.hidden=true
+                    
+                    // Carga la información de las imágenes en un array
+                    for imagen in currentPage as! [Imagen] {
+                        self.arrayImagenes.append(imagen)
+                        if let url  = NSURL(string: imagen.imagen!),
+                            data = NSData(contentsOfURL: url)
+                        {
+                            self.imagenesArray.append(UIImage(data: data)!)
+                        }
                     }
                 }
-            }
-            },
-                       catchblock: { (exception) -> Void in
-                        print("Server reported an error: \(exception)")
-                        print (whereClause)
-                        let mensaje = exception.message
-                        let alertController = UIAlertController(title: "Error", message: mensaje, preferredStyle: .Alert)
-                        let OKAction = UIAlertAction(title: "OK", style: .Default){ (action) in }
-                        alertController.addAction(OKAction)
-                        self.presentViewController(alertController, animated: true, completion: nil)
+                },
+                           catchblock: { (exception) -> Void in
+                            print("Server reported an error: \(exception)")
+                            print (whereClause)
+                            let mensaje = exception.message
+                            let alertController = UIAlertController(title: "Error", message: mensaje, preferredStyle: .Alert)
+                            let OKAction = UIAlertAction(title: "OK", style: .Default){ (action) in }
+                            alertController.addAction(OKAction)
+                            self.presentViewController(alertController, animated: true, completion: nil)
 
-        })
-      
-            
-        // carga las imágenes en el collection view
-        self.coleccionFotos.reloadData()
+                })
+          
+                
+            // carga las imágenes en el collection view
+            self.coleccionFotos.reloadData()
             indicador.stopAnimating()
             
         })
