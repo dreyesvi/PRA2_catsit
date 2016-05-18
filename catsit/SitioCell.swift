@@ -18,7 +18,6 @@ class SitioCell: UITableViewCell{
     var sitio: Sitio! {
         didSet {
             nombreLabel.text = sitio.nombre
-            //descripcionLabel.text = sitio.descripcion
             descripcionLabel.text = sitio.descRecortada
         }
     }

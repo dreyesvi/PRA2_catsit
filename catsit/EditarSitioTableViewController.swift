@@ -34,7 +34,6 @@ class EditarSitioTableViewController: UITableViewController, UICollectionViewDel
     // indica si se ha pulsado el botón "Edit"
     var isEditingMode = false
     // Array con las fotos de un sitio
-//    var fotosArray:[String] = []
     var imagenesArray:[UIImage] = []
     var arrayImagenes:[Imagen]=[]
     // posición de la imagen seleccionada
@@ -485,11 +484,6 @@ class EditarSitioTableViewController: UITableViewController, UICollectionViewDel
                 }
                else
                 {
-                /*    let alertController = UIAlertController(title: "Eliminar", message: "Sitio eliminado correctamente", preferredStyle: .Alert)
-                    let OKAction = UIAlertAction(title: "OK", style: .Default){ (action) in }
-                    alertController.addAction(OKAction)
-                    self.presentViewController(alertController, animated: true, completion: nil)
-                 */   
                     // realiza un segue a "deleteEditarSitio" pantalla MisSitios
                     self.performSegueWithIdentifier("deleteEditarSitio", sender: self)
                 }

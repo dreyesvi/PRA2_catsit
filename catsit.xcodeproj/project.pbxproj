@@ -27,7 +27,6 @@
 		63BD6ED01CB576BC00E316B6 /* RegistroTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63BD6ECF1CB576BC00E316B6 /* RegistroTableViewController.swift */; };
 		63C96BCA1CE8B09200C69015 /* FotosCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63C96BC91CE8B09200C69015 /* FotosCollectionView.swift */; };
 		63C96BCC1CE8B17F00C69015 /* CellFotoCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63C96BCB1CE8B17F00C69015 /* CellFotoCollectionViewCell.swift */; };
-		63C96BCE1CE8B64200C69015 /* FotosCollectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63C96BCD1CE8B64200C69015 /* FotosCollectionViewController.swift */; };
 		63C96BD01CE8C63E00C69015 /* FotoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63C96BCF1CE8C63E00C69015 /* FotoViewController.swift */; };
 		63EBE1F11CAD8FAA00D51643 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63EBE1F01CAD8FAA00D51643 /* AppDelegate.swift */; };
 		63EBE1F31CAD8FAA00D51643 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63EBE1F21CAD8FAA00D51643 /* LoginViewController.swift */; };
@@ -179,7 +178,6 @@
 		63BD6ECF1CB576BC00E316B6 /* RegistroTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RegistroTableViewController.swift; sourceTree = "<group>"; };
 		63C96BC91CE8B09200C69015 /* FotosCollectionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FotosCollectionView.swift; sourceTree = "<group>"; };
 		63C96BCB1CE8B17F00C69015 /* CellFotoCollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CellFotoCollectionViewCell.swift; sourceTree = "<group>"; };
-		63C96BCD1CE8B64200C69015 /* FotosCollectionViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FotosCollectionViewController.swift; sourceTree = "<group>"; };
 		63C96BCF1CE8C63E00C69015 /* FotoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FotoViewController.swift; sourceTree = "<group>"; };
 		63EBE1ED1CAD8FAA00D51643 /* catsit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = catsit.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		63EBE1F01CAD8FAA00D51643 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -489,7 +487,6 @@
 				63995A5A1CE742DF008938CF /* EditarSitioTableViewController.swift */,
 				63C96BC91CE8B09200C69015 /* FotosCollectionView.swift */,
 				63C96BCB1CE8B17F00C69015 /* CellFotoCollectionViewCell.swift */,
-				63C96BCD1CE8B64200C69015 /* FotosCollectionViewController.swift */,
 				63C96BCF1CE8C63E00C69015 /* FotoViewController.swift */,
 			);
 			path = catsit;
@@ -652,7 +649,6 @@
 				6324A8181CB18BEB00FD652E /* CondicionesViewController.swift in Sources */,
 				639E26F31CE3A78C004B4EC7 /* HacerFotoViewController.swift in Sources */,
 				63C96BD01CE8C63E00C69015 /* FotoViewController.swift in Sources */,
-				63C96BCE1CE8B64200C69015 /* FotosCollectionViewController.swift in Sources */,
 				63EBE1F91CAD8FAA00D51643 /* catsit.xcdatamodeld in Sources */,
 				6324A81C1CB1936100FD652E /* MapaViewController.swift in Sources */,
 				63995A5B1CE742DF008938CF /* EditarSitioTableViewController.swift in Sources */,

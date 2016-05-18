@@ -11,14 +11,10 @@ import UIKit
 class DetalleSitioViewController: UITableViewController, UITextFieldDelegate, UITextViewDelegate {
 
     
-    
+    // Variables de elementos delegados
     @IBOutlet weak var nombreTextField: UITextField!
-    
     @IBOutlet weak var descripcionTextView: UITextView!
-    
-    
     @IBOutlet weak var gestionarFotos: UIButton!
-    
     @IBOutlet weak var obtenerUbicacion: UIButton!
     
     // variable para guardar los datos del nuevo sitio

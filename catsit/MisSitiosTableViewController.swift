@@ -132,10 +132,10 @@ class MisSitiosTableViewController: UITableViewController {
         // obtiene una versión recortada de la descripción max. 60 caracteres
         sitio.descRecortada = sitio.descripcion
         let longdescripcion = sitio.descripcion?.characters.count
-        if (longdescripcion > 60) {
-            let descrecortada = sitio.descripcion![sitio.descripcion!.startIndex...sitio.descripcion!.startIndex.advancedBy(60)]
+        if (longdescripcion > 30) {
+            let descrecortada = sitio.descripcion![sitio.descripcion!.startIndex...sitio.descripcion!.startIndex.advancedBy(30)]
             sitio.descRecortada=descrecortada
-            print ("descripcion recortada: \(descrecortada)")
+            //print ("descripcion recortada: \(descrecortada)")
         }
        
         // asigna a la celda prototipo los valores del sitio
@@ -246,7 +246,7 @@ class MisSitiosTableViewController: UITableViewController {
      Unwind manual que se llama cuando se confirma que el usuario quiere borrar toda la información de un sitio.
      -	Elimina el sitio del array de sitios
      -  Actualiza la cache de imagenes
-     -	Actualiza la tabla, eliminando la fila que se acabad de borrar.
+     -	Actualiza la tabla, eliminando la fila que se acaba de borrar.
     */
     @IBAction func deleteEditarSitioTableViewController(segue:UIStoryboardSegue) {
         
@@ -289,8 +289,8 @@ class MisSitiosTableViewController: UITableViewController {
     
     /*
      Unwind que se llama desde la pantalla de añadir un nuevo sitio “DetalleSitioViewController.swift”.
-     -	Añade el nuevo sitio al array de sitios.
-     -	Actualiza la tabla con los datos del nuevo sitio.
+     Si se ha podido añadir correctamente el nuevo sitio se actualiza la tabla con los datos del nuevo sitio.
+
     */
     @IBAction func saveDetalleSitio(segue:UIStoryboardSegue) {
         
