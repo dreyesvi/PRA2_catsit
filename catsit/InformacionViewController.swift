@@ -10,26 +10,67 @@ import UIKit
 
 class InformacionViewController: UIViewController {
     
-    @IBOutlet weak var imagen: UIImageView!
+   
+    
+    @IBOutlet weak var usuariosRegistrados: UITextField!
+    
+    @IBOutlet weak var totalSitios: UITextField!
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
-        //let imagenView = UIImageViewAsync(frame: CGRectMake(0, 0, 400, 400))
+    
+        //Mostrar indicador de actividad
+        let indicador = UIActivityIndicatorView(activityIndicatorStyle: .Gray)
+        indicador.center = self.view.center;
+        self.view.addSubview(indicador)
+        self.view.bringSubviewToFront(indicador)
+        indicador.hidden=false
+        indicador.hidesWhenStopped=true
+
+        // activa el símbolo de trabajando...
+        indicador.startAnimating()
         
-        //imagenView.downloadImage("https://api.backendless.com/66D4C758-07DB-D75A-FFB5-050DBAFB7F00/v1/files/FotosSitios/2.jpg")
+        // ejecuta en modo asincrono la consulta de sitios y usuarios
+        dispatch_async(dispatch_get_main_queue(), {
+
+        // Conecta con la instancia de backendless que se ha logineado el usuario
+        let backendless = Backendless.sharedInstance()
         
-        //let url = NSURL(fileURLWithPath: "")
-        //let data = NSData(contentsOfURL: url)
-        //imagen.image = UIImage(data: data!)
         
-        if let url  = NSURL(string: "https://api.backendless.com/66D4C758-07DB-D75A-FFB5-050DBAFB7F00/v1/files/FotosSitios/2.jpg"),
-            data = NSData(contentsOfURL: url)
-        {
-            imagen.image = UIImage(data: data)
-        }
+        // Prepara una consulta a la tabla sitio y usuario.
+        let query = BackendlessDataQuery()
+        
+        
+       
+        Types.tryblock(
+            { () -> Void in
+                
+                // realiza la consulta a la bb.dd y obtiene la lista total de sitios
+                let sitios = backendless.persistenceService.of(Sitio.ofClass()).find(query)
+                self.totalSitios.text = String(sitios.totalObjects)
+                
+
+                // realiza la consulta a la bb.dd y obtiene la lista de usuarios registrados
+                let usuarios = backendless.persistenceService.of(BackendlessUser.ofClass()).find(query)
+                self.usuariosRegistrados.text = String(usuarios.totalObjects)
+
+            }, catchblock: { (exception) -> Void in
+                // muestra el mensaje de error
+                print("Server reported an error: \(exception)")
+                
+                let alertController = UIAlertController(title: "Error", message: exception.message, preferredStyle: .Alert)
+                let OKAction = UIAlertAction(title: "OK", style: .Default){ (action) in }
+                alertController.addAction(OKAction)
+                self.presentViewController(alertController, animated: true, completion: nil)
+        })
+
+            
+            indicador.stopAnimating()
+        })
+
         
     }
     

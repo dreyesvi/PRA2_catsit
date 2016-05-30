@@ -268,6 +268,9 @@ class EditarSitioTableViewController: UITableViewController, UICollectionViewDel
                                 alertController.addAction(OKAction)
                                 self.presentViewController(alertController, animated: true, completion: nil)
                     })
+      
+                    // Se ha actualizar el collectionView para refrescar fotos
+                       self.refrescarFotos(UIBarButtonItem())
                     
                     // Parar animacion y volver a permitir interacción
                     indicador.stopAnimating()
