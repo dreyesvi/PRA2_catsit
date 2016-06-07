@@ -49,9 +49,14 @@ class VistaMapaViewController: UIViewController, CLLocationManagerDelegate {
         indicador.center = view.center;
         view.addSubview(indicador)
         
+        
+      
+        
+        
+        
         // Verifica si el usuario tiene permisos para acceder a la localización
         // En el caso de que no tenga lo solicita al usuario
-        let authStatus = CLLocationManager.authorizationStatus()
+/*        let authStatus = CLLocationManager.authorizationStatus()
         if authStatus == .NotDetermined{
             locationManager.requestWhenInUseAuthorization()
             return
@@ -73,7 +78,7 @@ class VistaMapaViewController: UIViewController, CLLocationManagerDelegate {
      
         }
 
-        
+        */
         
         
     }
@@ -83,10 +88,76 @@ class VistaMapaViewController: UIViewController, CLLocationManagerDelegate {
         // Dispose of any resources that can be recreated.
     }
     
+    
+    override func viewDidAppear(animated: Bool) {
+        
+        
+        super.viewDidAppear(true)
+        
+
+        actualizaMapa()
+        
+      
+        
+    }
+    
+    
+   
+    
+    
+    
+    func actualizaMapa()
+    {
+        
+        // Accede al array de sitios ya leido en el ViewController padre
+        let VCpadre = self.parentViewController as! MapaViewController
+        
+        let newLocation = VCpadre.location
+        
+        if newLocation != nil {
+            
+            
+            
+            let center = CLLocationCoordinate2D(latitude: newLocation!.coordinate.latitude, longitude: newLocation!.coordinate.longitude)
+            let region = MKCoordinateRegion(center: center, span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05))
+            
+            self.mapa.setRegion(region, animated: true)
+            
+        }
+        
+        let allAnnotations = self.mapa.annotations
+        self.mapa.removeAnnotations(allAnnotations)
+        
+        mapa.showsUserLocation=true
+        
+        
+        for sitio in VCpadre.sitiosArray{
+            
+            if sitio.localizacion != nil {
+                
+                let nota = MKPointAnnotation()
+                
+                // convierte un GeoPoint a formato CLLocation
+                let location = CLLocationCoordinate2D(
+                    latitude: CLLocationDegrees(sitio.localizacion!.latitude),
+                    longitude: CLLocationDegrees(sitio.localizacion!.longitude))
+                
+                nota.coordinate = location
+                nota.title = sitio.nombre
+                self.mapa.addAnnotation(nota)
+                print("nota: \(nota.title)")
+                
+            }
+        }
+
+        
+    }
+    
+    
     /*
      Define los parámetros de precisión de la localización y la inicia.
      */
-    func startLocationManager(){
+ /*   func startLocationManager(){
         
         if CLLocationManager.locationServicesEnabled(){
             // Si los servicios de localizacion están activos
@@ -107,13 +178,13 @@ class VistaMapaViewController: UIViewController, CLLocationManagerDelegate {
             presentViewController(alert, animated: true, completion: nil)
         }
     }
-    
+    */
     
     
     /*
      Para el servicio de localización
      */
-    func stopLocationManager(){
+/*    func stopLocationManager(){
         
         if isUpdatingLocation{
             
@@ -122,14 +193,14 @@ class VistaMapaViewController: UIViewController, CLLocationManagerDelegate {
             isUpdatingLocation=false
         }
     }
-
+*/
   
     /*
      Lee la localización y guarda la mejor obtenida hasta conseguir una localización con la precisión definida.
      Muestra la posición en el mapa y modifica la vista del mapa para centrarla.
      Para los servicios de localización cuando lo consigue. Activa el botón “Save”.
      */
-    func locationManager(manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+/*    func locationManager(manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         
         
         
@@ -209,12 +280,12 @@ class VistaMapaViewController: UIViewController, CLLocationManagerDelegate {
             
         })
     }
-    
+  */
     
     /*
      Se ejecuta cuando se detecta un error de localización. Se muestra un mensaje al usuario.
      */
-    func locationManager(manager: CLLocationManager, didFailWithError error: NSError) {
+/*    func locationManager(manager: CLLocationManager, didFailWithError error: NSError) {
         print("didFailWithError \(error)")
         if error.code == CLError.LocationUnknown.rawValue{
             return
@@ -227,7 +298,7 @@ class VistaMapaViewController: UIViewController, CLLocationManagerDelegate {
         stopLocationManager()
     }
 
-    
+    */
     
 
 }

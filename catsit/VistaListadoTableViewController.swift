@@ -10,6 +10,12 @@ import UIKit
 
 class VistaListadoTableViewController: UITableViewController {
 
+    
+    
+    
+    
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -24,6 +30,19 @@ class VistaListadoTableViewController: UITableViewController {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
+    
+    override func viewDidAppear(animated: Bool) {
+        
+        
+        super.viewDidAppear(true)
+        
+        
+        self.tableView.reloadData()
+        
+        
+        
+    }
+
 
     // MARK: - Table view data source
 
@@ -34,18 +53,34 @@ class VistaListadoTableViewController: UITableViewController {
 
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
-        return 1
-    }
+        
+        
+        // Accede al array de sitios ya leido en el ViewController padre
+        let VCpadre = self.parentViewController as! MapaViewController
+        
+        return VCpadre.sitiosArray.count
+        
+        
+        
+     }
 
-    /*
+    
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("reuseIdentifier", forIndexPath: indexPath)
+    
+        let cell = tableView.dequeueReusableCellWithIdentifier("Cell", forIndexPath: indexPath) as! SitioMapaCell
 
-        // Configure the cell...
+        // Accede al array de sitios ya leido en el ViewController padre
+        let VCpadre = self.parentViewController as! MapaViewController
 
+        let sitio = VCpadre.sitiosArray[indexPath.row] as Sitio
+        
+        cell.nombre.text = sitio.nombre
+        cell.descripcion.text = sitio.descripcion
+        
+        
         return cell
     }
-    */
+ 
 
     /*
     // Override to support conditional editing of the table view.
