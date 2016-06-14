@@ -11,12 +11,16 @@ import Foundation
 class SitioMapaCell: UITableViewCell{
 
     
-    @IBOutlet weak var imagen: UIView!
+
     
     @IBOutlet weak var nombre: UILabel!
     
     
-    @IBOutlet weak var descripcion: UILabel!
+    @IBOutlet weak var imagen: UIImageView!
+    
+    
+    @IBOutlet weak var descripcion: UITextView!
+    
     
     
     

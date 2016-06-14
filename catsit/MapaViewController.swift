@@ -53,6 +53,7 @@ class MapaViewController: UIViewController, UITextFieldDelegate, CLLocationManag
       
         
         self.vistaMapaVC.actualizaMapa()
+        self.vistaListadoTVC.tableView.reloadData()
         
         
     }
@@ -129,6 +130,7 @@ class MapaViewController: UIViewController, UITextFieldDelegate, CLLocationManag
         if listadoMapaButton.title=="Listado" {
             
             listadoMapaButton.title="Mapa"
+            self.vistaListadoTVC.tableView.reloadData()
             UIView.animateWithDuration(0.5, animations: {
             self.vistaMapaViewController.alpha=0
             self.vistaListadoTableViewController.alpha=1
@@ -141,7 +143,7 @@ class MapaViewController: UIViewController, UITextFieldDelegate, CLLocationManag
             self.vistaMapaViewController.alpha=1
                 })
             listadoMapaButton.title="Listado"
-           // self.vistaListadoTVC.tableView.reloadData()
+            
             
         }
         
@@ -377,6 +379,9 @@ class MapaViewController: UIViewController, UITextFieldDelegate, CLLocationManag
                     //                       for sitio in currentPage as! [Sitio]
                     //                       {
                     self.sitiosArray.append(sitio)
+                    
+                    
+                    
                 }
                 
                 
