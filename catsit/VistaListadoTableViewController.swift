@@ -80,6 +80,8 @@ class VistaListadoTableViewController: UITableViewController {
         
         cell.nombre.text = sitio.nombre
         cell.descripcion.text = sitio.descripcion
+        cell.valoracionMedia.text = String(sitio.valoracionMedia)
+        
         
         // obtiene una versión recortada de la descripción max. 60 caracteres
         //sitio.descRecortada = sitio.descripcion

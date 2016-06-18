@@ -19,7 +19,7 @@ class Sitio : NSObject {
     var provincia: String?
     var usuario_idUsuario: String?
     var descRecortada: String?
- 
+    var valoracionMedia: Double=0
    
     override init(){
         

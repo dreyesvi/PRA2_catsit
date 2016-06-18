@@ -22,6 +22,7 @@ class SitioMapaCell: UITableViewCell{
     @IBOutlet weak var descripcion: UITextView!
     
     
+    @IBOutlet weak var valoracionMedia: UILabel!
     
     
     

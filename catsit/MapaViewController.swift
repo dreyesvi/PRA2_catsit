@@ -258,11 +258,11 @@ class MapaViewController: UIViewController, UITextFieldDelegate, CLLocationManag
                 self.lastLocationError = nil
                 self.location = newLocation
                 
-            //    let center = CLLocationCoordinate2D(latitude: newLocation.coordinate.latitude, longitude: newLocation.coordinate.longitude)
-            //    let region = MKCoordinateRegion(center: center, span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05))
+        /*     let center = CLLocationCoordinate2D(latitude: newLocation.coordinate.latitude, longitude: newLocation.coordinate.longitude)
+             let region = MKCoordinateRegion(center: center, span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05))
                 
-               // self.mapa.setRegion(region, animated: true)
-                
+               self.mapa.setRegion(region, animated: true)
+                */
             }
             
             // se consigue una localización con la precisión definida
@@ -285,7 +285,7 @@ class MapaViewController: UIViewController, UITextFieldDelegate, CLLocationManag
                 
                 
                 actualizaSitiosDistancia()
-                
+                self.vistaMapaVC.actualizaMapa()
                 
                 
                 

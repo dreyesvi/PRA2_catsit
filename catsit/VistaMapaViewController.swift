@@ -101,6 +101,7 @@ class VistaMapaViewController: UIViewController, CLLocationManagerDelegate {
         
     }
     
+ 
     
    
     
@@ -135,6 +136,7 @@ class VistaMapaViewController: UIViewController, CLLocationManagerDelegate {
             
             if sitio.localizacion != nil {
                 
+                          
                 let nota = MKPointAnnotation()
                 
                 // convierte un GeoPoint a formato CLLocation
@@ -144,6 +146,8 @@ class VistaMapaViewController: UIViewController, CLLocationManagerDelegate {
                 
                 nota.coordinate = location
                 nota.title = sitio.nombre
+                nota.subtitle = String(sitio.valoracionMedia)
+                
                 self.mapa.addAnnotation(nota)
                 print("nota: \(nota.title)")
                 

@@ -18,10 +18,10 @@ class SitioPublicoTableViewController: UITableViewController, UICollectionViewDe
     @IBOutlet weak var titulo: UINavigationItem!
     @IBOutlet weak var descripcionTextView: UITextView!
     @IBOutlet weak var mapa: MKMapView!
-    @IBOutlet weak var obtenerLocalizacion: UIButton!
-    @IBOutlet weak var refrescarFotos: UIBarButtonItem!
     @IBOutlet weak var mensajeMapa: UILabel!
     @IBOutlet weak var mensajeFotos: UILabel!
+    @IBOutlet weak var valoracionUser: UITextField!
+    @IBOutlet weak var valoracionMedia: UILabel!
     
     
     
@@ -40,6 +40,9 @@ class SitioPublicoTableViewController: UITableViewController, UICollectionViewDe
     // variable para guardar si se detecta un error
     var errorDetectado: Bool = false
     
+    var valoracionUsuario = 0
+    var valoracion: Valoracion?
+    
     
     
     /*
@@ -55,6 +58,60 @@ class SitioPublicoTableViewController: UITableViewController, UICollectionViewDe
         titulo.title = sitio?.nombre
         // Asigna la descripción del sitio (pasado como parámetro).
         descripcionTextView.text = sitio?.descripcion
+        if sitio?.valoracionMedia != 0
+        {
+            valoracionMedia.text = String(sitio!.valoracionMedia)
+        }
+        else {
+            valoracionMedia.text = "n/a"
+        }
+        
+        
+        // Leer la valoración del usuario (si ya la ha realizado)
+        let backendless = Backendless.sharedInstance()
+        let user = backendless.userService.currentUser
+        // Prepara una consulta a la tabla sitio filtrando solo el sitio seleccionado del usuario
+        var query = BackendlessDataQuery()
+        query.whereClause = "sitio_idSitio = '\(self.sitio!.objectId!)' and users_idUsuario = '\(user.objectId!)'"
+        
+        Types.tryblock({ () -> Void in
+            
+        
+        // realiza la consulta a la bb.dd y obtiene los resultados
+        let valoraciones = backendless.persistenceService.of(Valoracion.ofClass()).find(query)
+        
+            let currentPage = valoraciones.getCurrentPage()
+            if currentPage.count==0 {
+                
+                // el usuario no ha realizado una valoracion todavía
+                self.valoracionUser.text = ""
+            }
+            else
+            {
+                for valoracion in currentPage as! [Valoracion] {
+                    
+                    self.valoracionUser.text = String(valoracion.valoracion)
+                    self.valoracionUsuario = valoracion.valoracion
+                    self.valoracion = valoracion
+                    
+                }
+                
+            }
+        
+            },
+                       catchblock: { (exception) -> Void in
+                        print("Server reported an error: \(exception)")
+                        print (query.whereClause)
+                        let mensaje = exception.message
+                        let alertController = UIAlertController(title: "Error", message: mensaje, preferredStyle: .Alert)
+                        let OKAction = UIAlertAction(title: "OK", style: .Default){ (action) in }
+                        alertController.addAction(OKAction)
+                        self.presentViewController(alertController, animated: true, completion: nil)
+                        
+        })
+
+       
+        
         
         // Si el sitio tiene localización muestra la posición en el mapa
         // como una anotación
@@ -90,14 +147,15 @@ class SitioPublicoTableViewController: UITableViewController, UICollectionViewDe
             mapa.hidden=true
             mensajeMapa.hidden=false
         }
+        
+        
+        
         // leer todas las fotos del sitio
         
-        
-        let backendless = Backendless.sharedInstance()
+        //backendless = Backendless.sharedInstance()
         // Prepara una consulta a la tabla sitio filtrando solo el sitio seleccionado del usuario
-        let query = BackendlessDataQuery()
-        let whereClause = "idUsuario = '\(self.sitio!.usuario_idUsuario!)' and idSitio = '\(self.sitio!.nombre!)'"
-        query.whereClause = whereClause
+        query = BackendlessDataQuery()
+        query.whereClause = "idUsuario = '\(self.sitio!.usuario_idUsuario!)' and idSitio = '\(self.sitio!.nombre!)'"
         
         Types.tryblock({ () -> Void in
             // realiza la consulta a la bb.dd y obtiene los resultados
@@ -130,7 +188,7 @@ class SitioPublicoTableViewController: UITableViewController, UICollectionViewDe
             },
                        catchblock: { (exception) -> Void in
                         print("Server reported an error: \(exception)")
-                        print (whereClause)
+                        print (query.whereClause)
                         let mensaje = exception.message
                         let alertController = UIAlertController(title: "Error", message: mensaje, preferredStyle: .Alert)
                         let OKAction = UIAlertAction(title: "OK", style: .Default){ (action) in }
@@ -247,9 +305,194 @@ class SitioPublicoTableViewController: UITableViewController, UICollectionViewDe
     }
     
     
+    @IBAction func guardarValoracion(sender: UIButton) {
+        
+        if (valoracionUser.text=="1") || (valoracionUser.text=="2") || (valoracionUser.text=="3") || (valoracionUser.text=="4")
+            || (valoracionUser.text=="5")
+            
+        {
+            valoracionUser.backgroundColor = UIColor.whiteColor()
+            
+            //Leer la valoracion media actual
+            var nuevaValoracionMedia: Double = 0
+            var valoracionMediaSitio: Double = 0
+
+            // Leer la valoración del usuario (si ya la ha realizado)
+            let backendless = Backendless.sharedInstance()
+            // Prepara una consulta a la tabla sitio filtrando solo el sitio seleccionado del usuario
+            let query = BackendlessDataQuery()
+            query.whereClause = "objectId = '\(self.sitio!.objectId!)' "
+            
+            
+                // realiza la consulta a la bb.dd y obtiene los resultados
+                let sitios = backendless.persistenceService.of(Sitio.ofClass()).find(query)
+                
+                let currentPage = sitios.getCurrentPage()
+                for sitio in currentPage as! [Sitio] {
+                    valoracionMediaSitio = sitio.valoracionMedia
+                    }
+                    
+            
+                
+        
+            // recalcular la valoracion media en función de si el usuario ya había valorado o no el sitio
+
+            if (valoracionUsuario > 0) && (valoracionUsuario != Int(valoracionUser.text!))
+            {
+                // el usuario ya había valorado el sitio
+                
+                nuevaValoracionMedia = (valoracionMediaSitio * 2) - Double(self.valoracionUsuario)
+                
+                nuevaValoracionMedia = (nuevaValoracionMedia + Double(self.valoracionUser.text!)!) / 2
+                
+                // Actualiza la valoración del usuario al sitio.
+                dispatch_async(dispatch_get_main_queue(), {
+                    
+                    // conecta con la instancia actual
+                    let backendless = Backendless.sharedInstance()
+                    
+                    // Actualiza el sitio en la bb.dd.
+                    let dataStore = backendless.data.of(Valoracion.ofClass());
+                    Types.tryblock({ () -> Void in
+                        
+                        let result = dataStore.save(self.valoracion) as? Valoracion
+                        print ("id objecto: \(result!.objectId)")
+                        },
+                        catchblock: { (exception) -> Void in
+                            print("Server reported an error: \(exception)")
+                            print("id sitio: \(self.sitio?.nombre)")
+                            print("id usuario: \(self.sitio?.usuario_idUsuario)")
+                            let mensaje = exception.message
+                            let alertController = UIAlertController(title: "Error", message: mensaje, preferredStyle: .Alert)
+                            let OKAction = UIAlertAction(title: "OK", style: .Default){ (action) in }
+                            alertController.addAction(OKAction)
+                            self.presentViewController(alertController, animated: true, completion: nil)
+                    })
+                    
+                    
+                })
+
+                
+                
+                
+            }
+            else {
+                
+                // el usuairo no había valorado el sitio anteriormente
+                
+                nuevaValoracionMedia = (valoracionMediaSitio + Double(self.valoracionUser.text!)!) / 2
+                
+                // añade la valoración del usuario al sitio.
+                
+                
+                dispatch_async(dispatch_get_main_queue(), {
+                    
+                    let backendless = Backendless.sharedInstance()
+                    
+                    let user = backendless.userService.currentUser
+                    
+                    
+                    // Obtiene el valor del campo idusuario del usuario actual en un string
+                    let idUsuario = user.getProperty("idusuario") as! String
+                    
+                    let nuevaValoracion = Valoracion()
+                    nuevaValoracion.sitio_idSitio = self.sitio!.objectId
+                    nuevaValoracion.users_idUsuario = user.objectId
+                    nuevaValoracion.valoracion = Int(self.valoracionUser.text!)!
+                    
+                    
+                    let dataStore = backendless.data.of(Valoracion.ofClass());
+                    Types.tryblock({ () -> Void in
+                        
+                        let result = dataStore.save(nuevaValoracion) as? Valoracion
+                        print ("id objecto: \(result!.objectId)")
+                        
+                        self.valoracionUsuario = Int(self.valoracionUser.text!)!
+    
+                        
+                        },
+                        catchblock: { (exception) -> Void in
+                            print("Server reported an error: \(exception)")
+                            print("id usuario: \(idUsuario)")
+                            let alertController = UIAlertController(title: "Error", message: exception.message, preferredStyle: .Alert)
+                            let OKAction = UIAlertAction(title: "OK", style: .Default){ (action) in }
+                            alertController.addAction(OKAction)
+                            self.presentViewController(alertController, animated: true, completion: nil)
+                            
+                    })
+                   
+                })
+                
+                
+            }
+            
+            
+            // Actualiza la valoración media del sitio
+            
+            self.sitio?.valoracionMedia = nuevaValoracionMedia
+            self.valoracionMedia.text = String(nuevaValoracionMedia)
+                      
+            dispatch_async(dispatch_get_main_queue(), {
+                
+                // conecta con la instancia actual
+                let backendless = Backendless.sharedInstance()
+                
+                // Actualiza el sitio en la bb.dd.
+                let dataStore = backendless.data.of(Sitio.ofClass());
+                Types.tryblock({ () -> Void in
+                    
+                    let result = dataStore.save(self.sitio) as? Sitio
+                    print ("id objecto: \(result!.objectId)")
+                    print("Sitio actualiado  id: \(self.sitio?.nombre)")
+                    },
+                    catchblock: { (exception) -> Void in
+                        print("Server reported an error: \(exception)")
+                        print("id sitio: \(self.sitio?.nombre)")
+                        print("id usuario: \(self.sitio?.usuario_idUsuario)")
+                        let mensaje = exception.message
+                        let alertController = UIAlertController(title: "Error", message: mensaje, preferredStyle: .Alert)
+                        let OKAction = UIAlertAction(title: "OK", style: .Default){ (action) in }
+                        alertController.addAction(OKAction)
+                        self.presentViewController(alertController, animated: true, completion: nil)
+                })
+                
+     
+            })
+
+            
+            
+            
+            
+            
+    }
+        else{
+            
+            valoracionUser.backgroundColor = UIColor.redColor()
+            let alertController = UIAlertController(title: "Error", message: "Introduza un valor válido (1-5)", preferredStyle: .Alert)
+            let OKAction = UIAlertAction(title: "OK", style: .Default){ (action) in }
+            alertController.addAction(OKAction)
+            self.presentViewController(alertController, animated: true, completion: nil)
+            
+        }
+        
+    }
     
     
-    
+    func textFieldShouldReturn(textField: UITextField) -> Bool {
+        
+        
+        
+       
+        
+        
+       textField.resignFirstResponder()
+            
+        
+        
+        return false
+        
+    }
+
     
     
     
