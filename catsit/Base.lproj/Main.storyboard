@@ -223,14 +223,14 @@
                                             <exclude reference="35L-6h-KfK"/>
                                         </mask>
                                         <mask key="constraints">
+                                            <exclude reference="dFF-G7-YBg"/>
+                                            <exclude reference="irZ-mo-QQh"/>
+                                            <exclude reference="qXs-I3-TUi"/>
                                             <exclude reference="0fb-bb-wCC"/>
                                             <exclude reference="anE-3s-7Zt"/>
                                             <exclude reference="fQW-Ew-vg0"/>
                                             <exclude reference="n6k-Ws-grA"/>
                                             <exclude reference="prs-wn-eyP"/>
-                                            <exclude reference="dFF-G7-YBg"/>
-                                            <exclude reference="irZ-mo-QQh"/>
-                                            <exclude reference="qXs-I3-TUi"/>
                                         </mask>
                                     </variation>
                                     <variation key="heightClass=regular">
@@ -238,14 +238,14 @@
                                             <include reference="35L-6h-KfK"/>
                                         </mask>
                                         <mask key="constraints">
+                                            <include reference="dFF-G7-YBg"/>
+                                            <include reference="irZ-mo-QQh"/>
+                                            <include reference="qXs-I3-TUi"/>
                                             <exclude reference="0fb-bb-wCC"/>
                                             <include reference="anE-3s-7Zt"/>
                                             <include reference="fQW-Ew-vg0"/>
                                             <include reference="n6k-Ws-grA"/>
                                             <include reference="prs-wn-eyP"/>
-                                            <include reference="dFF-G7-YBg"/>
-                                            <include reference="irZ-mo-QQh"/>
-                                            <include reference="qXs-I3-TUi"/>
                                         </mask>
                                     </variation>
                                 </tableViewCellContentView>
@@ -1836,6 +1836,7 @@
                     <connections>
                         <outlet property="mapa" destination="n7O-zK-5s1" id="ezN-TH-0I7"/>
                         <outlet property="zoomStepper" destination="Zm9-Aq-YtJ" id="Qmc-gJ-dnp"/>
+                        <segue destination="9Sk-89-fys" kind="show" identifier="mapaDetalle" id="ShH-2a-fmV"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="0c5-nm-fNm" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -2109,15 +2110,6 @@
                                                     <exclude reference="WbI-xx-LFb"/>
                                                 </mask>
                                                 <mask key="constraints">
-                                                    <exclude reference="GAp-AN-Ckb"/>
-                                                    <exclude reference="5q2-TN-Jbo"/>
-                                                    <exclude reference="eLC-nf-Sdt"/>
-                                                    <exclude reference="E36-SB-znv"/>
-                                                    <exclude reference="kFu-aS-cPi"/>
-                                                    <exclude reference="pM1-z6-B4L"/>
-                                                    <exclude reference="9Ye-ba-viR"/>
-                                                    <exclude reference="wE1-Qt-YlZ"/>
-                                                    <exclude reference="A6y-0N-LUj"/>
                                                     <exclude reference="Qey-bl-sQU"/>
                                                     <exclude reference="bwH-DC-PER"/>
                                                     <exclude reference="viP-cp-6uk"/>
@@ -2126,6 +2118,15 @@
                                                     <exclude reference="1Hc-2y-a6e"/>
                                                     <exclude reference="4zU-Jp-DgG"/>
                                                     <exclude reference="lLM-Hk-MMF"/>
+                                                    <exclude reference="5q2-TN-Jbo"/>
+                                                    <exclude reference="eLC-nf-Sdt"/>
+                                                    <exclude reference="9Ye-ba-viR"/>
+                                                    <exclude reference="wE1-Qt-YlZ"/>
+                                                    <exclude reference="A6y-0N-LUj"/>
+                                                    <exclude reference="E36-SB-znv"/>
+                                                    <exclude reference="kFu-aS-cPi"/>
+                                                    <exclude reference="pM1-z6-B4L"/>
+                                                    <exclude reference="GAp-AN-Ckb"/>
                                                 </mask>
                                             </variation>
                                             <variation key="heightClass=regular">
@@ -2138,15 +2139,6 @@
                                                     <include reference="WbI-xx-LFb"/>
                                                 </mask>
                                                 <mask key="constraints">
-                                                    <include reference="GAp-AN-Ckb"/>
-                                                    <include reference="5q2-TN-Jbo"/>
-                                                    <include reference="eLC-nf-Sdt"/>
-                                                    <include reference="E36-SB-znv"/>
-                                                    <include reference="kFu-aS-cPi"/>
-                                                    <include reference="pM1-z6-B4L"/>
-                                                    <include reference="9Ye-ba-viR"/>
-                                                    <exclude reference="wE1-Qt-YlZ"/>
-                                                    <include reference="A6y-0N-LUj"/>
                                                     <exclude reference="Qey-bl-sQU"/>
                                                     <include reference="bwH-DC-PER"/>
                                                     <include reference="viP-cp-6uk"/>
@@ -2155,6 +2147,15 @@
                                                     <include reference="1Hc-2y-a6e"/>
                                                     <include reference="4zU-Jp-DgG"/>
                                                     <include reference="lLM-Hk-MMF"/>
+                                                    <include reference="5q2-TN-Jbo"/>
+                                                    <include reference="eLC-nf-Sdt"/>
+                                                    <include reference="9Ye-ba-viR"/>
+                                                    <exclude reference="wE1-Qt-YlZ"/>
+                                                    <include reference="A6y-0N-LUj"/>
+                                                    <include reference="E36-SB-znv"/>
+                                                    <include reference="kFu-aS-cPi"/>
+                                                    <include reference="pM1-z6-B4L"/>
+                                                    <include reference="GAp-AN-Ckb"/>
                                                 </mask>
                                             </variation>
                                         </tableViewCellContentView>
@@ -2283,5 +2284,6 @@
         <segue reference="vNr-6I-d8E"/>
         <segue reference="Duc-bb-DTg"/>
         <segue reference="cYM-5k-Egn"/>
+        <segue reference="ShH-2a-fmV"/>
     </inferredMetricsTieBreakers>
 </document>

@@ -8,7 +8,7 @@
 
 import UIKit
 
-class VistaMapaViewController: UIViewController, CLLocationManagerDelegate {
+class VistaMapaViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDelegate {
 
     
    
@@ -24,6 +24,8 @@ class VistaMapaViewController: UIViewController, CLLocationManagerDelegate {
 
     // Variable que almacena todos los sitios.
     var sitiosArray:[Sitio] = []
+    
+     var selectedAnnotation: MKPointAnnotation!
 
     
     // Variable para mostrar el indicador de actividad mientras se está registrando el usuario
@@ -132,6 +134,9 @@ class VistaMapaViewController: UIViewController, CLLocationManagerDelegate {
         mapa.showsUserLocation=true
         
         
+        
+        
+        
         for sitio in VCpadre.sitiosArray{
             
             if sitio.localizacion != nil {
@@ -146,16 +151,110 @@ class VistaMapaViewController: UIViewController, CLLocationManagerDelegate {
                 
                 nota.coordinate = location
                 nota.title = sitio.nombre
-                nota.subtitle = String(sitio.valoracionMedia)
+                nota.subtitle = "Valoracion: " + String(sitio.valoracionMedia)
+                
                 
                 self.mapa.addAnnotation(nota)
+                
                 print("nota: \(nota.title)")
+                
+                
+        
+                
+                
+                
                 
             }
         }
 
         
     }
+    
+
+
+    
+    func mapView(mapView: MKMapView, viewForAnnotation annotation: MKAnnotation) -> MKAnnotationView? {
+        var view = mapView.dequeueReusableAnnotationViewWithIdentifier("sitio")
+        if view == nil {
+            view = MKPinAnnotationView(annotation: annotation, reuseIdentifier: "sitio")
+            view?.canShowCallout = true
+            view?.rightCalloutAccessoryView = UIButton(type: .DetailDisclosure)
+           
+        } else {
+            view?.annotation = annotation
+        }
+        return view
+    }
+    
+    
+    
+    
+    func mapView(mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
+    
+       
+        
+        if control == view.rightCalloutAccessoryView {
+            selectedAnnotation = view.annotation as? MKPointAnnotation
+            if selectedAnnotation != nil{
+            
+                performSegueWithIdentifier("mapaDetalle", sender: self)
+            }
+            else{
+                let alert = UIAlertController(title: "Mi Ubicación", message: "Esta es mi localización", preferredStyle: .Alert)
+                let okAction = UIAlertAction(title: "OK", style: .Default, handler: nil)
+                alert.addAction(okAction)
+                presentViewController(alert, animated: true, completion: nil)
+                
+            }
+        }
+    }
+    
+    
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        
+        if segue.identifier == "mapaDetalle" {
+            
+            
+            
+            // pasa como parámetro los datos del sitio
+            let nav = segue.destinationViewController as! UINavigationController
+            let addEventViewController = nav.topViewController as! SitioPublicoTableViewController
+            
+            // Accede al array de sitios ya leido en el ViewController padre
+            let VCpadre = self.parentViewController as! MapaViewController
+            
+            // obtener el sitio seleccionado a partir de la anotación seleccionada.
+            var encontrado: Bool = false
+            var contador:Int = 0;
+            
+            var sitio = Sitio()
+            while (encontrado == false && contador<VCpadre.sitiosArray.count)
+            {
+                sitio = VCpadre.sitiosArray[contador] as Sitio
+                
+                if sitio.nombre == selectedAnnotation.title
+                {
+                    encontrado = true
+                    addEventViewController.sitio = sitio
+                    
+                }
+                else
+                {
+                    contador = contador + 1
+                    
+                }
+                
+                
+            }
+            
+            
+            
+            
+        }
+    }
+    
+
+    
     
     
     /*
