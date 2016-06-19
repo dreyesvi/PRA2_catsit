@@ -13,14 +13,9 @@ class MapaViewController: UIViewController, UITextFieldDelegate, CLLocationManag
     
     
     @IBOutlet weak var listadoMapaButton: UIBarButtonItem!
-    
     @IBOutlet weak var vistaListadoTableViewController: UIView!
-    
     @IBOutlet weak var vistaMapaViewController: UIView!
-    
     @IBOutlet weak var filtroRadioKm: UISlider!
-   
-    
     @IBOutlet weak var numKmLabel: UITextField!
     
     // Variable que almacena todos los sitios.
@@ -35,30 +30,37 @@ class MapaViewController: UIViewController, UITextFieldDelegate, CLLocationManag
     var lastLocationError: NSError?
     var location: CLLocation?
 
+    // variables  para acceder a los viewcontrollers de los container view asociados
     private var vistaMapaVC: VistaMapaViewController!
     private var vistaListadoTVC: VistaListadoTableViewController!
     
+    
+    // Cuando se pulsa el botón de aplicar nueva distancia de filtro
     @IBAction func filtroradioKm(sender: AnyObject) {
         
+        // Actualiza el campo texto con el valor del slider
         numKmLabel.text = String(Int(round(filtroRadioKm.value)))
-        
         
     }
     
-    
+    // Actualiza los sitios a la distancia indicada tanto en el mapa como en el listado
     @IBAction func actualizaDistancia(sender: UIButton) {
         
+        // Consulta la base de datos y actualiza el array de sitios que cumplen la distancia
         actualizaSitiosDistancia()
         
-      
-        
+        // Actualiza el mapa y el listado con los sitios del array.
         self.vistaMapaVC.actualizaMapa()
         self.vistaListadoTVC.tableView.reloadData()
         
         
     }
     
+    
+    // asigna los view controlers asociados a los container view a la vista padre para
+    // poder acceder a ellos y actualizar los datos.
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+     
         if let vc = segue.destinationViewController as? VistaMapaViewController
             where segue.identifier == "vistaMapaSegue" {
             
@@ -72,11 +74,12 @@ class MapaViewController: UIViewController, UITextFieldDelegate, CLLocationManag
             self.vistaListadoTVC = vc2
         }
         
-        
-        
     }
     
     
+    
+    // Inicializa el campo de texto con la distancia de los sitios por defecto: 1
+    // Obtiene la localización del usuario, solicita permiso al usuario y en caso de que no sea posible muestra un error.
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -109,13 +112,8 @@ class MapaViewController: UIViewController, UITextFieldDelegate, CLLocationManag
         {
             // si hay autorización se inicia la localización
             startLocationManager()
-        //    mapa.showsUserLocation=true
-            
-            
         }
 
-        
-        
         
     }
     
@@ -124,10 +122,13 @@ class MapaViewController: UIViewController, UITextFieldDelegate, CLLocationManag
         // Dispose of any resources that can be recreated.
     }
     
-    
+
+    // Alterna la vista entre un mapa o un listado. 
+    // Muestra u oculta el container view correspondiente
     @IBAction func didTapListadoMapaButton(sender: UIBarButtonItem) {
         
         if listadoMapaButton.title=="Listado" {
+            // Oculta el container view del mapa y muestra el del listado
             
             listadoMapaButton.title="Mapa"
             self.vistaListadoTVC.tableView.reloadData()
@@ -138,21 +139,18 @@ class MapaViewController: UIViewController, UITextFieldDelegate, CLLocationManag
         }
         else
         {
+            // Oculta el container view del listado y muestra el del mapa
             UIView.animateWithDuration(0.5, animations: {
             self.vistaListadoTableViewController.alpha=0
             self.vistaMapaViewController.alpha=1
                 })
             listadoMapaButton.title="Listado"
-            
-            
         }
-        
-            
-        
-        
     }
     
-    
+
+    // verifica que si se entra un valor manualmente sea un número entre 1 y 10.
+    // en caso contrario muestra un mensaje de error.
     func textFieldShouldReturn(textField: UITextField) -> Bool {
         
         Types.tryblock(
@@ -230,15 +228,14 @@ class MapaViewController: UIViewController, UITextFieldDelegate, CLLocationManag
     /*
      Lee la localización y guarda la mejor obtenida hasta conseguir una localización con la precisión definida.
      Muestra la posición en el mapa y modifica la vista del mapa para centrarla.
-     Para los servicios de localización cuando lo consigue. Activa el botón “Save”.
+     Para los servicios de localización cuando lo consigue.
      */
     func locationManager(manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         
         
         
         self.indicador.startAnimating()
-     //   dispatch_async(dispatch_get_main_queue(), { () -> Void in
-            
+        
             // obtiene la última localización recibida
             let newLocation = locations.last!
             print ("Nueva localizacion: \(newLocation)")
@@ -258,22 +255,11 @@ class MapaViewController: UIViewController, UITextFieldDelegate, CLLocationManag
                 self.lastLocationError = nil
                 self.location = newLocation
                 
-        /*     let center = CLLocationCoordinate2D(latitude: newLocation.coordinate.latitude, longitude: newLocation.coordinate.longitude)
-             let region = MKCoordinateRegion(center: center, span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05))
-                
-               self.mapa.setRegion(region, animated: true)
-                */
             }
             
             // se consigue una localización con la precisión definida
             if newLocation.horizontalAccuracy <= self.locationManager.desiredAccuracy{
                 print("se ha conseguido la precisión definida")
-                
-            //    let center = CLLocationCoordinate2D(latitude: newLocation.coordinate.latitude, longitude: newLocation.coordinate.longitude)
-            //    let region = MKCoordinateRegion(center: center, span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05))
-                
-              //  self.mapa.setRegion(region, animated: true)
-                
                 
                 // se guarda la localización recibida en la variable de clase
                 self.location=newLocation
@@ -281,44 +267,15 @@ class MapaViewController: UIViewController, UITextFieldDelegate, CLLocationManag
                 // se para la localización
                 self.stopLocationManager()
                 
-                
-                
-                
+                // se actualizan los sitios que cumplen la distancia definida por defecto
                 actualizaSitiosDistancia()
+                // se muestran los sitios en el mapa
                 self.vistaMapaVC.actualizaMapa()
-                
-                
-                
                 
                 self.indicador.stopAnimating()
                 
-                // Accede al array de sitios ya leido en el ViewController padre
-              /*  let VCpadre = self.parentViewController as! MapaViewController
-                
-                for sitio in VCpadre.sitiosArray{
-                    
-                    if sitio.localizacion != nil {
-                        
-                        let nota = MKPointAnnotation()
-                        
-                        // convierte un GeoPoint a formato CLLocation
-                        let location = CLLocationCoordinate2D(
-                            latitude: CLLocationDegrees(sitio.localizacion!.latitude),
-                            longitude: CLLocationDegrees(sitio.localizacion!.longitude))
-                        
-              //          nota.coordinate = location
-              //          nota.title = sitio.nombre
-              //          self.mapa.addAnnotation(nota)
-              //          print("nota: \(nota.title)")
-                        
-                    }
-                }
-                */
-                
-                
             }
             
- //       })
     }
     
     
@@ -338,19 +295,14 @@ class MapaViewController: UIViewController, UITextFieldDelegate, CLLocationManag
         stopLocationManager()
     }
 
+    
+    // Realiza una consulta a la base de datos filtrando a partir de la distancia del usuario y
+    // hasta la distancia definida en el campo de km de distancia.
+    
     func actualizaSitiosDistancia (){
         
         // Conecta con la instancia de backendless que se ha logineado el usuario
         let backendless = Backendless.sharedInstance()
-        
-        
-        // Prepara una consulta a la tabla sitio para leer todos los sitios
-        // let query = BackendlessDataQuery()
-        
-        // indica que obtenga los datos relacionados de localización (GeoPoint)
-        // let queryOptions = QueryOptions()
-        // queryOptions.addRelated("localizacion")
-        // query.queryOptions = queryOptions
         
         Types.tryblock(
             { () -> Void in
@@ -367,25 +319,13 @@ class MapaViewController: UIViewController, UITextFieldDelegate, CLLocationManag
                 
                 let sitios = backendless.persistenceService.find(Sitio.ofClass(), dataQuery:dataQuery) as BackendlessCollection
                 
-                
+                // borra el array anterior para volver a cargar los sitios que cumplen la distancia.
                 self.sitiosArray.removeAll()
-                
-                // realiza la consulta a la bb.dd y obtiene la lista de sitios del usuario
-                //  let sitios = backendless.persistenceService.of(Sitio.ofClass()).find(query)
-                //                     let currentPage = sitios.getCurrentPage()
                 
                 // Recorre la lista de sitios y carga la información de los sitios en un array
                 for sitio in sitios.data as! [Sitio] {
-                    //                       for sitio in currentPage as! [Sitio]
-                    //                       {
                     self.sitiosArray.append(sitio)
-                    
-                    
-                    
                 }
-                
-                
-                
             }, catchblock: { (exception) -> Void in
                 // muestra el mensaje de error
                 print("Server reported an error: \(exception)")

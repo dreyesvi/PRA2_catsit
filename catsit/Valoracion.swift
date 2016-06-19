@@ -8,7 +8,7 @@
 
 import Foundation
 
-import Foundation
+
 
 class Valoracion : NSObject {
     

@@ -10,10 +10,8 @@ import UIKit
 
 class SitioPublicoTableViewController: UITableViewController, UICollectionViewDelegate, UICollectionViewDataSource, UITextFieldDelegate {
 
-   
+   // variables para acceder a los componentes de la vista
     @IBOutlet weak var coleccionFotos: FotosCollectionView!
-    // variables para acceder a los componentes de la vista
- 
     @IBOutlet weak var cancelSitio: UIBarButtonItem!
     @IBOutlet weak var titulo: UINavigationItem!
     @IBOutlet weak var descripcionTextView: UITextView!
@@ -22,6 +20,7 @@ class SitioPublicoTableViewController: UITableViewController, UICollectionViewDe
     @IBOutlet weak var mensajeFotos: UILabel!
     @IBOutlet weak var valoracionUser: UITextField!
     @IBOutlet weak var valoracionMedia: UILabel!
+    @IBOutlet weak var guardarValoracion: UIButton!
     
     
     
@@ -29,8 +28,6 @@ class SitioPublicoTableViewController: UITableViewController, UICollectionViewDe
     var sitio: Sitio?
     // variable para guardar los datos de localizacion
     var localizaSitio: GeoPoint?
-    // indica si se ha pulsado el botón "Edit"
-    var isEditingMode = false
     // Array con las fotos de un sitio
     var imagenesArray:[UIImage] = []
     var arrayImagenes:[Imagen]=[]
@@ -40,6 +37,7 @@ class SitioPublicoTableViewController: UITableViewController, UICollectionViewDe
     // variable para guardar si se detecta un error
     var errorDetectado: Bool = false
     
+    // Variables para gestionar la valoración del usuario
     var valoracionUsuario = 0
     var valoracion: Valoracion?
     
@@ -67,11 +65,28 @@ class SitioPublicoTableViewController: UITableViewController, UICollectionViewDe
         }
         
         
-        // Leer la valoración del usuario (si ya la ha realizado)
         let backendless = Backendless.sharedInstance()
         let user = backendless.userService.currentUser
+        // Obtiene el valor del campo idusuario del usuario actual en un string
+        let idUsuario = user.getProperty("idusuario") as! String
+        
+        // verifica si el sitio es propiedad del usuario
+        if sitio?.usuario_idUsuario == idUsuario
+        {
+            // Un usuario no puede valorar sus propios sitios.
+            self.valoracionUser.enabled = false
+            self.guardarValoracion.enabled = false
+            self.valoracionUser.text = "n/a"
+            
+        }
+        else
+        {
+            self.valoracionUser.enabled = true
+            self.guardarValoracion.enabled = true
+        // Leer la valoración del usuario (si ya la ha realizado)
+        
         // Prepara una consulta a la tabla sitio filtrando solo el sitio seleccionado del usuario
-        var query = BackendlessDataQuery()
+        let query = BackendlessDataQuery()
         query.whereClause = "sitio_idSitio = '\(self.sitio!.objectId!)' and users_idUsuario = '\(user.objectId!)'"
         
         Types.tryblock({ () -> Void in
@@ -110,7 +125,7 @@ class SitioPublicoTableViewController: UITableViewController, UICollectionViewDe
                         
         })
 
-       
+       }
         
         
         // Si el sitio tiene localización muestra la posición en el mapa
@@ -154,12 +169,13 @@ class SitioPublicoTableViewController: UITableViewController, UICollectionViewDe
         
         //backendless = Backendless.sharedInstance()
         // Prepara una consulta a la tabla sitio filtrando solo el sitio seleccionado del usuario
-        query = BackendlessDataQuery()
-        query.whereClause = "idUsuario = '\(self.sitio!.usuario_idUsuario!)' and idSitio = '\(self.sitio!.nombre!)'"
+        var queryImagen = BackendlessDataQuery()
+        queryImagen = BackendlessDataQuery()
+        queryImagen.whereClause = "idUsuario = '\(self.sitio!.usuario_idUsuario!)' and idSitio = '\(self.sitio!.nombre!)'"
         
         Types.tryblock({ () -> Void in
             // realiza la consulta a la bb.dd y obtiene los resultados
-            let sitios = backendless.persistenceService.of(Imagen.ofClass()).find(query)
+            let sitios = backendless.persistenceService.of(Imagen.ofClass()).find(queryImagen)
             let currentPage = sitios.getCurrentPage()
             
             if currentPage.count==0 {
@@ -188,7 +204,7 @@ class SitioPublicoTableViewController: UITableViewController, UICollectionViewDe
             },
                        catchblock: { (exception) -> Void in
                         print("Server reported an error: \(exception)")
-                        print (query.whereClause)
+                        print (queryImagen.whereClause)
                         let mensaje = exception.message
                         let alertController = UIAlertController(title: "Error", message: mensaje, preferredStyle: .Alert)
                         let OKAction = UIAlertAction(title: "OK", style: .Default){ (action) in }
@@ -272,7 +288,7 @@ class SitioPublicoTableViewController: UITableViewController, UICollectionViewDe
     
     /*
      Asigna a la variable celdaSeleccionada el índice de la imagen seleccionada.
-     Posteriormente se utiliza para mostrarla en la pantalla de “FotoViewController”.
+     Posteriormente se utiliza para mostrarla en la pantalla de “FotoPublicaViewController”.
      */
     func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
         
@@ -282,7 +298,7 @@ class SitioPublicoTableViewController: UITableViewController, UICollectionViewDe
     
     /*
      Pasa parámetros a otros view controllers. Se utiliza cuando se pulsa la primera fila, en la colección de imágenes.
-     -	“verDetalleFoto”: Pasa el parámetro imagen, si no hay imágenes le pasa solo el id del sitio para añadir nuevas fotos.
+     -	“verFotoPublicaSegue”: Pasa el parámetro imagen.
      */
     // Pasa parámetros a otros View Controllers
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
@@ -304,6 +320,15 @@ class SitioPublicoTableViewController: UITableViewController, UICollectionViewDe
         }
     }
     
+    /*
+     Al pulsar el botón de guardar valoración se valida que el usuario haya entrado un valor válido (1,2,3,4,5)
+     Lo primero que se hace es volver a leer la valoración media del sitio (para minimizar problemas de concurrencia)
+     Si el usuario ya había realizado una valoración del sitio recalcula la media en función de la antigua y nueva valoración y
+     actualiza la valoración en la base de datos.
+     Si el usuario no ha realizado una valoración a este sitio calcula la media.
+     Guarda la valoración en la base de datos.
+    
+    */
     
     @IBAction func guardarValoracion(sender: UIButton) {
         
@@ -458,12 +483,6 @@ class SitioPublicoTableViewController: UITableViewController, UICollectionViewDe
                 
      
             })
-
-            
-            
-            
-            
-            
     }
         else{
             
@@ -480,26 +499,9 @@ class SitioPublicoTableViewController: UITableViewController, UICollectionViewDe
     
     func textFieldShouldReturn(textField: UITextField) -> Bool {
         
-        
-        
-       
-        
-        
        textField.resignFirstResponder()
-            
-        
-        
         return false
         
     }
-
-    
-    
-    
-    
-    
-    
-    
-    
     
 }

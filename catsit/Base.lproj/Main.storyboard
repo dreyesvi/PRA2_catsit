@@ -398,7 +398,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="nlV-bL-n94" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="978" y="181"/>
+            <point key="canvasLocation" x="1626" y="1061.25"/>
         </scene>
         <!--Información-->
         <scene sceneID="jkG-fA-A7a">
@@ -493,7 +493,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="aaa-Y2-a0q" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="986" y="857"/>
+            <point key="canvasLocation" x="924" y="1242"/>
         </scene>
         <!--Mis Sitios-->
         <scene sceneID="Gjo-V8-o7j">
@@ -1796,7 +1796,7 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="pr2-pF-ppp" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="978" y="-499"/>
+            <point key="canvasLocation" x="990" y="-110.25"/>
         </scene>
         <!--Vista Mapa View Controller-->
         <scene sceneID="9NO-Iz-158">
@@ -2206,6 +2206,7 @@
                         <outlet property="cancelSitio" destination="ngy-4V-Uyd" id="JkF-id-AoE"/>
                         <outlet property="coleccionFotos" destination="i5H-tg-blJ" id="ops-B7-DgV"/>
                         <outlet property="descripcionTextView" destination="lKo-gH-lv8" id="mzC-1y-9cW"/>
+                        <outlet property="guardarValoracion" destination="HoD-ni-XdK" id="iHZ-6x-Skc"/>
                         <outlet property="mapa" destination="gJu-Fj-xnk" id="erz-U9-Udl"/>
                         <outlet property="mensajeFotos" destination="lfh-1y-QMr" id="AsS-UA-LfD"/>
                         <outlet property="mensajeMapa" destination="0ix-CK-7kt" id="dyE-CG-vcy"/>
@@ -2282,8 +2283,8 @@
     </resources>
     <inferredMetricsTieBreakers>
         <segue reference="vNr-6I-d8E"/>
+        <segue reference="C8i-Rd-HbI"/>
         <segue reference="Duc-bb-DTg"/>
         <segue reference="cYM-5k-Egn"/>
-        <segue reference="ShH-2a-fmV"/>
     </inferredMetricsTieBreakers>
 </document>

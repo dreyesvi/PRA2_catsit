@@ -14,61 +14,38 @@ class VistaListadoTableViewController: UITableViewController {
     var imageCache = [String:UIImage]()
 
     
-    // Variable que almacena el listado de sitios de un usuario.
-   // var sitiosArray:[Sitio] = []
-    
-    
-    
-    
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // Uncomment the following line to preserve selection between presentations
-        // self.clearsSelectionOnViewWillAppear = false
-
-        // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-        // self.navigationItem.rightBarButtonItem = self.editButtonItem()
     }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
     }
     
+
+    // Actualiza la tabla cuando se vuelve a mostrar la pantalla.
     override func viewDidAppear(animated: Bool) {
-        
-        
         super.viewDidAppear(true)
-        
-        
         self.tableView.reloadData()
-        
-        
         
     }
 
-
-    // MARK: - Table view data source
-
+    // Define solo una sección en la tabla
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
-        // #warning Incomplete implementation, return the number of sections
         return 1
     }
 
+    // Define como número de filas de la tabla el tamaño del array de la vista padre.
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        // #warning Incomplete implementation, return the number of rows
-        
-        
         // Accede al array de sitios ya leido en el ViewController padre
         let VCpadre = self.parentViewController as! MapaViewController
-        
         return VCpadre.sitiosArray.count
-        
-        
-        
      }
 
     
+    // Rellena las filas de la tabla, a partir del array de sitios contenido en el padre.
+    // Consulta en la base de datos las imágenes del sitio y las guarda en el array de imágenes para mejorar la eficiencia
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
     
         let cell = tableView.dequeueReusableCellWithIdentifier("Cell", forIndexPath: indexPath) as! SitioMapaCell
@@ -84,7 +61,6 @@ class VistaListadoTableViewController: UITableViewController {
         
         
         // obtiene una versión recortada de la descripción max. 60 caracteres
-        //sitio.descRecortada = sitio.descripcion
         let longdescripcion = sitio.descripcion?.characters.count
         if (longdescripcion > 30) {
             let descrecortada = sitio.descripcion![sitio.descripcion!.startIndex...sitio.descripcion!.startIndex.advancedBy(30)]
@@ -136,7 +112,6 @@ class VistaListadoTableViewController: UITableViewController {
                     let currentPage = imagenes.getCurrentPage()
                     
                     //Inizializa la imagen a blanco por si no hay imagenes del sitio
-                    //cell.imagen.image = UIImage()
                     
                     if currentPage.count==0
                     {
@@ -177,21 +152,16 @@ class VistaListadoTableViewController: UITableViewController {
             
 
         }
-        
-        
-        
-        
-        
         return cell
     }
  
     
     /*
-     Cuando se selecciona una fila de la tabla se hace un segue “EditarSitio” a “EditarSitioTableViewController”
+     Cuando se selecciona una fila de la tabla se hace un segue “sitioPublico” a “SitioPublicoTableViewController”
      se pasa como parámetro el sitio.
-     -	Verifica que el segue sea “editarSitio”
+     -	Verifica que el segue sea “sitioPublico”
      -	Se guarda el número de fila seleccionada.
-     -	Pasa como parámetro “Sitio” al ViewController “EditarSitioTableViewController”.
+     -	Pasa como parámetro “Sitio” al ViewController “SitioPublicoTableViewController”.
      */
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         
@@ -200,8 +170,6 @@ class VistaListadoTableViewController: UITableViewController {
             // número de fila seleccionado
             let cell = sender as! UITableViewCell
             let indexPath = self.tableView.indexPathForCell(cell)
-      //      celdaSeleccionada = indexPath!.row
-            
             
             // pasa como parámetro los datos del sitio
             let nav = segue.destinationViewController as! UINavigationController
@@ -216,61 +184,15 @@ class VistaListadoTableViewController: UITableViewController {
     }
 
     /*
-     Unwind que se llama cuando el usuario pulsa el botón “Cancel” en la pantalla “Editar Sitio”.
-     Refresca los valores de la fila de la tabla por si ha cambiado o agregado una imagen.
+     Unwind que se llama cuando el usuario pulsa el botón “cerrar” en la pantalla “SitioPublicoTableViewController”.
      */
     @IBAction func cancelSitioPublicoTableViewController(segue:UIStoryboardSegue) {
         
- 
-    
     
     
     }
     
 
-    /*
-    // Override to support conditional editing of the table view.
-    override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        // Return false if you do not want the specified item to be editable.
-        return true
-    }
-    */
-
-    /*
-    // Override to support editing the table view.
-    override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
-        if editingStyle == .Delete {
-            // Delete the row from the data source
-            tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
-        } else if editingStyle == .Insert {
-            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-        }    
-    }
-    */
-
-    /*
-    // Override to support rearranging the table view.
-    override func tableView(tableView: UITableView, moveRowAtIndexPath fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath) {
-
-    }
-    */
-
-    /*
-    // Override to support conditional rearranging of the table view.
-    override func tableView(tableView: UITableView, canMoveRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        // Return false if you do not want the item to be re-orderable.
-        return true
-    }
-    */
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
-    }
-    */
+   
 
 }
